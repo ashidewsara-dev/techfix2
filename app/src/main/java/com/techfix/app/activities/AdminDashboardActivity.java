@@ -104,14 +104,17 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         // MANAGE SPARE PARTS
 
+
         btnManageParts.setOnClickListener(v -> {
 
-            Toast.makeText(
+            Intent intent = new Intent(
                     AdminDashboardActivity.this,
-                    "Spare parts management coming next",
-                    Toast.LENGTH_SHORT
-            ).show();
+                    ManagePartsActivity.class
+            );
+
+            startActivity(intent);
         });
+
 
 
         // LOGOUT
