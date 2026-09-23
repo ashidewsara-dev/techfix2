@@ -45,6 +45,7 @@ public class BranchesActivity extends AppCompatActivity {
                 LocationServices.getFusedLocationProviderClient(this);
 
         btnFindNearest.setOnClickListener(v -> findNearestBranch());
+        findNearestBranch();
     }
 
 
