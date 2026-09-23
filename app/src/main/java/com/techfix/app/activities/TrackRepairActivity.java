@@ -22,6 +22,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import androidx.appcompat.app.AlertDialog;
+
+
 public class TrackRepairActivity extends AppCompatActivity {
 
     private LinearLayout repairContainer;
@@ -163,6 +166,14 @@ public class TrackRepairActivity extends AppCompatActivity {
 
         String appointmentId = document.getId();
 
+        Double paymentAmount = document.getDouble("paymentAmount");
+        String paymentStatus = document.getString("paymentStatus");
+
+        if (paymentStatus == null || paymentStatus.trim().isEmpty()) {
+            paymentStatus = "Unpaid";
+        }
+
+
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
         card.setPadding(
@@ -222,7 +233,181 @@ public class TrackRepairActivity extends AppCompatActivity {
         idView.setTextSize(11);
         idView.setPadding(0, dp(12), 0, 0);
         card.addView(idView);
+
+
+        TextView paymentTitle = new TextView(this);
+        paymentTitle.setText("PAYMENT");
+        paymentTitle.setTextSize(13);
+        paymentTitle.setTypeface(null, Typeface.BOLD);
+        paymentTitle.setTextColor(getColor(R.color.tech_teal));
+        paymentTitle.setPadding(0, dp(20), 0, dp(8));
+        card.addView(paymentTitle);
+
+        if (paymentAmount == null || paymentAmount <= 0) {
+
+            addDetail(card, "Repair amount", "Awaiting final amount from admin");
+
+        } else {
+
+            String formattedAmount = String.format(
+                    Locale.US,
+                    "LKR %,.2f",
+                    paymentAmount
+            );
+
+            addDetail(card, "Repair amount", formattedAmount);
+            addDetail(card, "Payment status", paymentStatus);
+
+            if (!"Paid (Demo)".equalsIgnoreCase(paymentStatus)) {
+
+                Button btnPay = new Button(this);
+                btnPay.setText("Pay Now (Demo)");
+                btnPay.setAllCaps(false);
+                btnPay.setTextColor(getColor(R.color.tech_background));
+                btnPay.setBackgroundTintList(
+                        android.content.res.ColorStateList.valueOf(
+                                getColor(R.color.tech_teal)
+                        )
+                );
+
+                card.addView(btnPay);
+
+                btnPay.setOnClickListener(v ->
+                        showDemoPaymentDialog(
+                                appointmentId,
+                                formattedAmount
+                        )
+                );
+            }
+        }
+
     }
+
+
+    private void showDemoPaymentDialog(
+            String appointmentId,
+            String formattedAmount
+    ) {
+
+        new AlertDialog.Builder(this)
+                .setTitle("Demo Payment")
+                .setMessage(
+                        "Repair amount: " + formattedAmount
+                                + "\n\nThis is a simulated payment "
+                                + "for your coursework demonstration. "
+                                + "No real money will be charged."
+                )
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Confirm Demo Payment",
+                        (dialog, which) -> completeDemoPayment(appointmentId))
+                .show();
+    }
+
+    private void completeDemoPayment(String appointmentId) {
+
+        if (firebaseAuth.getCurrentUser() == null) {
+
+            Toast.makeText(
+                    this,
+                    "Please log in again",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
+        String currentCustomerId =
+                firebaseAuth.getCurrentUser().getUid();
+
+        firestore.collection("appointments")
+                .document(appointmentId)
+                .get()
+                .addOnSuccessListener(document -> {
+
+                    if (!document.exists()) {
+
+                        Toast.makeText(
+                                this,
+                                "Repair appointment not found",
+                                Toast.LENGTH_SHORT
+                        ).show();
+
+                        return;
+                    }
+
+                    String ownerId = document.getString("customerId");
+                    Double amount = document.getDouble("paymentAmount");
+                    String status = document.getString("paymentStatus");
+
+                    if (!currentCustomerId.equals(ownerId)) {
+
+                        Toast.makeText(
+                                this,
+                                "This appointment does not belong to your account",
+                                Toast.LENGTH_LONG
+                        ).show();
+
+                        return;
+                    }
+
+                    if (amount == null || amount <= 0) {
+
+                        Toast.makeText(
+                                this,
+                                "Repair amount has not been set",
+                                Toast.LENGTH_SHORT
+                        ).show();
+
+                        loadRepairs();
+                        return;
+                    }
+
+                    if ("Paid ".equalsIgnoreCase(status)) {
+
+                        Toast.makeText(
+                                this,
+                                "This payment is already completed",
+                                Toast.LENGTH_SHORT
+                        ).show();
+
+                        loadRepairs();
+                        return;
+                    }
+
+                    firestore.collection("appointments")
+                            .document(appointmentId)
+                            .update("paymentStatus", "Paid")
+                            .addOnSuccessListener(unused -> {
+
+                                Toast.makeText(
+                                        this,
+                                        "Payment completed",
+                                        Toast.LENGTH_SHORT
+                                ).show();
+
+                                loadRepairs();
+                            })
+                            .addOnFailureListener(e ->
+
+                                    Toast.makeText(
+                                            this,
+                                            "Payment update failed: "
+                                                    + e.getMessage(),
+                                            Toast.LENGTH_LONG
+                                    ).show()
+                            );
+                })
+                .addOnFailureListener(e ->
+
+                        Toast.makeText(
+                                this,
+                                "Could not verify appointment: "
+                                        + e.getMessage(),
+                                Toast.LENGTH_LONG
+                        ).show()
+                );
+    }
+
 
     private void addDetail(
             LinearLayout card,
