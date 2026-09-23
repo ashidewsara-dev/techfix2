@@ -93,6 +93,21 @@
                 android:textColor="@color/tech_text"
                 android:textColorHint="@color/tech_text_secondary" />
 
+
+            <EditText
+                android:id="@+id/editTechnicianBranch"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_tech_input"
+                android:hint="Branch (e.g. Colombo 07)"
+                android:inputType="textCapWords"
+                android:padding="12dp"
+                android:singleLine="true"
+                android:textColor="@color/tech_text"
+                android:textColorHint="@color/tech_text_secondary" />
+
+
             <Button
                 android:id="@+id/btnSaveTechnician"
                 android:layout_width="match_parent"
