@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/tech_background"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TECHFIX / TECHNICIAN PORTAL"
+            android:textColor="@color/tech_teal"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Assigned Repairs"
+            android:textColor="@color/tech_text"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="View your repair jobs and update their status."
+            android:textColor="@color/tech_text_secondary"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/txtAssignedRepairCount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Your Repairs"
+            android:textColor="@color/tech_text"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnRefreshAssignedRepairs"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="@color/tech_surface_light"
+            android:text="Refresh Repairs"
+            android:textAllCaps="false"
+            android:textColor="@color/tech_text" />
+
+        <ProgressBar
+            android:id="@+id/assignedRepairsProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="18dp"
+            android:indeterminateTint="@color/tech_teal"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/txtNoAssignedRepairs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:gravity="center"
+            android:padding="18dp"
+            android:text="No repairs assigned to you yet."
+            android:textColor="@color/tech_text_secondary"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/assignedRepairsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical" />
+
+    </LinearLayout>
+</ScrollView>
