@@ -232,7 +232,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Optional: select a photo showing your device or the issue."
+                android:text="Optional: take a photo or select one from your gallery."
                 android:textColor="@color/tech_text_secondary"
                 android:textSize="13sp" />
 
@@ -256,9 +256,19 @@
                 android:textColor="@color/tech_text_secondary"
                 android:textSize="14sp" />
 
+            <ImageView
+                android:id="@+id/imagePreview"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_tech_input"
+                android:contentDescription="Selected device image preview"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+
         </LinearLayout>
 
-        <!-- SUBMIT -->
+        <!-- SUBMIT BUTTON -->
 
         <Button
             android:id="@+id/btnSubmitRepair"
@@ -266,7 +276,7 @@
             android:layout_height="56dp"
             android:layout_marginTop="24dp"
             android:backgroundTint="@color/tech_teal"
-            android:text="Submit Repair Request  →"
+            android:text="Submit Repair Request"
             android:textAllCaps="false"
             android:textColor="@color/tech_background"
             android:textSize="16sp"
@@ -277,7 +287,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:gravity="center"
-            android:text="Your appointment will be submitted to TechFix."
+            android:text="Your appointment details will be submitted to TechFix."
             android:textColor="@color/tech_text_secondary"
             android:textSize="12sp" />
 
