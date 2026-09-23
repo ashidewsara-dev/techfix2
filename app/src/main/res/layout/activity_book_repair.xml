@@ -1,103 +1,285 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/tech_background"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="20dp">
+
+        <!-- HEADER -->
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="TECHFIX / REPAIR BOOKING"
+            android:textColor="@color/tech_teal"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.08" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
             android:text="Book a Repair"
+            android:textColor="@color/tech_text"
             android:textSize="28sp"
             android:textStyle="bold" />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Device Category" />
-
-        <Spinner
-            android:id="@+id/spCategory"
-            android:layout_width="match_parent"
-            android:layout_height="50dp" />
-
-        <EditText
-            android:id="@+id/editBrand"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:hint="Device Brand" />
+            android:layout_marginTop="6dp"
+            android:text="Tell us about your device and choose your preferred appointment details."
+            android:textColor="@color/tech_text_secondary"
+            android:textSize="14sp" />
 
-        <EditText
-            android:id="@+id/editModel"
+        <!-- DEVICE DETAILS CARD -->
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:hint="Device Model" />
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_tech_card"
+            android:orientation="vertical"
+            android:padding="18dp">
 
-        <EditText
-            android:id="@+id/editProblem"
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="01  Device Details"
+                android:textColor="@color/tech_text"
+                android:textSize="19sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="Device Category"
+                android:textColor="@color/tech_text_secondary"
+                android:textSize="13sp" />
+
+            <Spinner
+                android:id="@+id/spCategory"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="7dp"
+                android:background="@drawable/bg_tech_input"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Device Brand"
+                android:textColor="@color/tech_text_secondary"
+                android:textSize="13sp" />
+
+            <EditText
+                android:id="@+id/editBrand"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="7dp"
+                android:background="@drawable/bg_tech_input"
+                android:hint="e.g. Samsung, Apple, HP"
+                android:inputType="textCapWords"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:singleLine="true"
+                android:textColor="@color/tech_text"
+                android:textColorHint="@color/tech_text_secondary"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Device Model"
+                android:textColor="@color/tech_text_secondary"
+                android:textSize="13sp" />
+
+            <EditText
+                android:id="@+id/editModel"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="7dp"
+                android:background="@drawable/bg_tech_input"
+                android:hint="e.g. Galaxy A54"
+                android:inputType="textCapWords"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:singleLine="true"
+                android:textColor="@color/tech_text"
+                android:textColorHint="@color/tech_text_secondary"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Describe the Problem"
+                android:textColor="@color/tech_text_secondary"
+                android:textSize="13sp" />
+
+            <EditText
+                android:id="@+id/editProblem"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:layout_marginTop="7dp"
+                android:background="@drawable/bg_tech_input"
+                android:gravity="top"
+                android:hint="Tell us what is wrong with your device..."
+                android:inputType="textCapSentences|textMultiLine"
+                android:padding="14dp"
+                android:textColor="@color/tech_text"
+                android:textColorHint="@color/tech_text_secondary"
+                android:textSize="15sp" />
+
+        </LinearLayout>
+
+        <!-- APPOINTMENT DETAILS CARD -->
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:layout_marginTop="10dp"
-            android:gravity="top"
-            android:hint="Describe the problem"
-            android:inputType="textMultiLine"
-            android:padding="10dp" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_tech_card"
+            android:orientation="vertical"
+            android:padding="18dp">
 
-        <Button
-            android:id="@+id/btnSelectDate"
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="02  Appointment Details"
+                android:textColor="@color/tech_text"
+                android:textSize="19sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="Preferred Date"
+                android:textColor="@color/tech_text_secondary"
+                android:textSize="13sp" />
+
+            <Button
+                android:id="@+id/btnSelectDate"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="7dp"
+                android:backgroundTint="@color/tech_teal"
+                android:text="Choose a Date"
+                android:textAllCaps="false"
+                android:textColor="@color/tech_background"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="9dp"
+                android:text="No date selected"
+                android:textColor="@color/tech_text_secondary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="Preferred Branch"
+                android:textColor="@color/tech_text_secondary"
+                android:textSize="13sp" />
+
+            <Spinner
+                android:id="@+id/spBranch"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="7dp"
+                android:background="@drawable/bg_tech_input"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp" />
+
+        </LinearLayout>
+
+        <!-- DEVICE IMAGE CARD -->
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:text="Select Preferred Date" />
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_tech_card"
+            android:orientation="vertical"
+            android:padding="18dp">
 
-        <TextView
-            android:id="@+id/txtDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="No date selected" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="03  Device Image"
+                android:textColor="@color/tech_text"
+                android:textSize="19sp"
+                android:textStyle="bold" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Preferred Branch" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Optional: select a photo showing your device or the issue."
+                android:textColor="@color/tech_text_secondary"
+                android:textSize="13sp" />
 
-        <Spinner
-            android:id="@+id/spBranch"
-            android:layout_width="match_parent"
-            android:layout_height="50dp" />
+            <Button
+                android:id="@+id/btnSelectImage"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="@color/tech_surface_light"
+                android:text="Select Device Image"
+                android:textAllCaps="false"
+                android:textColor="@color/tech_text"
+                android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/btnSelectImage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:text="Select Device Image" />
+            <TextView
+                android:id="@+id/txtImage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="9dp"
+                android:text="No image selected"
+                android:textColor="@color/tech_text_secondary"
+                android:textSize="14sp" />
 
-        <TextView
-            android:id="@+id/txtImage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="No image selected" />
+        </LinearLayout>
+
+        <!-- SUBMIT -->
 
         <Button
             android:id="@+id/btnSubmitRepair"
             android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="@color/tech_teal"
+            android:text="Submit Repair Request  →"
+            android:textAllCaps="false"
+            android:textColor="@color/tech_background"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
-            android:text="Submit Repair Request" />
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:text="Your appointment will be submitted to TechFix."
+            android:textColor="@color/tech_text_secondary"
+            android:textSize="12sp" />
 
     </LinearLayout>
 
