@@ -29,6 +29,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import android.widget.AdapterView;
+import com.google.firebase.firestore.DocumentSnapshot;
+
 public class BookRepairActivity extends AppCompatActivity {
 
     private Spinner spCategory;
@@ -40,6 +43,9 @@ public class BookRepairActivity extends AppCompatActivity {
 
     private TextView txtDate;
     private TextView txtImage;
+
+    private TextView txtBranchAvailability;
+
 
     private Button btnSelectDate;
     private Button btnSelectImage;
@@ -55,6 +61,9 @@ public class BookRepairActivity extends AppCompatActivity {
 
     private ActivityResultLauncher<Void> cameraLauncher;
     private ActivityResultLauncher<String> galleryLauncher;
+
+    private int availabilityRequestId = 0;
+
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -76,6 +85,10 @@ public class BookRepairActivity extends AppCompatActivity {
         txtDate = findViewById(R.id.txtDate);
         txtImage = findViewById(R.id.txtImage);
 
+        txtBranchAvailability =
+                findViewById(R.id.txtBranchAvailability);
+
+
         btnSelectDate = findViewById(R.id.btnSelectDate);
         btnSelectImage = findViewById(R.id.btnSelectImage);
         btnSubmitRepair = findViewById(R.id.btnSubmitRepair);
@@ -85,12 +98,166 @@ public class BookRepairActivity extends AppCompatActivity {
         setupSpinners();
         setupImageLaunchers();
 
+        spBranch.setOnItemSelectedListener(
+                new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(
+                            AdapterView<?> parent,
+                            View view,
+                            int position,
+                            long id
+                    ) {
+                        checkBranchAvailability();
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                        txtBranchAvailability.setText(
+                                "Select a branch to check availability."
+                        );
+                    }
+                }
+        );
+
+        spCategory.setOnItemSelectedListener(
+                new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(
+                            AdapterView<?> parent,
+                            View view,
+                            int position,
+                            long id
+                    ) {
+                        checkBranchAvailability();
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                        // No category selected.
+                    }
+                }
+        );
+
+
+
         btnSelectDate.setOnClickListener(v -> showDatePicker());
 
         btnSelectImage.setOnClickListener(v -> selectImage());
 
         btnSubmitRepair.setOnClickListener(v -> submitRepair());
     }
+
+
+
+    private void checkBranchAvailability() {
+
+        // Each new selection gets its own request number.
+        final int requestId = ++availabilityRequestId;
+
+        if (spBranch.getSelectedItem() == null
+                || spCategory.getSelectedItem() == null) {
+            txtBranchAvailability.setText(
+                    "Select a branch and device category."
+            );
+            return;
+        }
+
+        final String selectedBranch =
+                spBranch.getSelectedItem().toString();
+
+        final String selectedCategory =
+                spCategory.getSelectedItem().toString();
+
+        txtBranchAvailability.setText(
+                "Checking availability at " + selectedBranch + "..."
+        );
+
+        firestore.collection("users")
+                .whereEqualTo("role", "technician")
+                .get()
+                .addOnSuccessListener(technicianSnapshot -> {
+
+                    // Ignore results from an older selection.
+                    if (requestId != availabilityRequestId) {
+                        return;
+                    }
+
+                    int technicianCount = 0;
+
+                    for (com.google.firebase.firestore.DocumentSnapshot technician
+                            : technicianSnapshot.getDocuments()) {
+
+                        String branch = technician.getString("branch");
+
+                        if (selectedBranch.equalsIgnoreCase(branch)) {
+                            technicianCount++;
+                        }
+                    }
+
+                    final int matchingTechnicians = technicianCount;
+
+                    firestore.collection("spare_parts")
+                            .get()
+                            .addOnSuccessListener(partsSnapshot -> {
+
+                                if (requestId != availabilityRequestId) {
+                                    return;
+                                }
+
+                                int matchingParts = 0;
+
+                                for (com.google.firebase.firestore.DocumentSnapshot part
+                                        : partsSnapshot.getDocuments()) {
+
+                                    String partBranch =
+                                            part.getString("branch");
+
+                                    String compatibleDevice =
+                                            part.getString("device");
+
+                                    Long quantity =
+                                            part.getLong("quantity");
+
+                                    if (selectedBranch.equalsIgnoreCase(partBranch)
+                                            && selectedCategory.equalsIgnoreCase(
+                                            compatibleDevice == null
+                                                    ? "" : compatibleDevice
+                                    )
+                                            && quantity != null
+                                            && quantity > 0) {
+                                        matchingParts++;
+                                    }
+                                }
+
+                                txtBranchAvailability.setText(
+                                        selectedBranch + " branch\n"
+                                                + "Technicians registered: "
+                                                + matchingTechnicians + "\n"
+                                                + "Compatible part types in stock: "
+                                                + matchingParts + "\n\n"
+                                                + "Availability is indicative. "
+                                                + "The admin will confirm your repair."
+                                );
+                            })
+                            .addOnFailureListener(e -> {
+                                if (requestId == availabilityRequestId) {
+                                    txtBranchAvailability.setText(
+                                            "Could not check spare-parts stock. "
+                                                    + "You can still submit a request."
+                                    );
+                                }
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    if (requestId == availabilityRequestId) {
+                        txtBranchAvailability.setText(
+                                "Could not check technician availability. "
+                                        + "You can still submit a request."
+                        );
+                    }
+                });
+    }
+
 
     private void setupSpinners() {
 
