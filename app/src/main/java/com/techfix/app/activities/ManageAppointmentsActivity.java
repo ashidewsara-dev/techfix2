@@ -19,6 +19,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+
+import android.text.InputType;
+import android.widget.EditText;
+import java.util.Locale;
+
+
 public class ManageAppointmentsActivity extends AppCompatActivity {
 
     private LinearLayout adminAppointmentsContainer;
@@ -124,6 +130,14 @@ public class ManageAppointmentsActivity extends AppCompatActivity {
                         String status = document.getString("status");
                         String technicianId = document.getString("technicianId");
 
+                        Double paymentAmount = document.getDouble("paymentAmount");
+                        String paymentStatus = document.getString("paymentStatus");
+
+                        if (paymentStatus == null || paymentStatus.trim().isEmpty()) {
+                            paymentStatus = "Unpaid";
+                        }
+
+
                         // DARK REPAIR CARD
                         LinearLayout card = new LinearLayout(this);
                         card.setOrientation(LinearLayout.VERTICAL);
@@ -210,6 +224,22 @@ public class ManageAppointmentsActivity extends AppCompatActivity {
                         Button btnCompleted = createButton("Set Completed");
                         Button btnAssign = createButton("Assign Technician");
 
+
+                        Button btnSetPayment = createButton("Set Repair Amount");
+
+                        String amountText = paymentAmount == null
+                                ? "Not set"
+                                : String.format(Locale.US, "LKR %,.2f", paymentAmount);
+
+                        TextView paymentView = createText(
+                                "\nPayment amount: " + amountText
+                                        + "\nPayment status: " + paymentStatus,
+                                14,
+                                getColor(R.color.tech_text_secondary),
+                                false
+                        );
+
+
                         btnPending.setOnClickListener(v ->
                                 updateStatus(appointmentId, "Pending")
                         );
@@ -231,6 +261,15 @@ public class ManageAppointmentsActivity extends AppCompatActivity {
                         card.addView(btnCompleted);
                         card.addView(btnAssign);
 
+
+                        card.addView(paymentView);
+                        card.addView(btnSetPayment);
+
+                        btnSetPayment.setOnClickListener(v ->
+                                showPaymentAmountDialog(appointmentId)
+                        );
+
+
                         adminAppointmentsContainer.addView(card);
                     }
                 })
@@ -244,6 +283,97 @@ public class ManageAppointmentsActivity extends AppCompatActivity {
                     ).show();
                 });
     }
+
+    private void showPaymentAmountDialog(String appointmentId) {
+
+
+            EditText amountInput = new EditText(this);
+            amountInput.setHint("Amount in LKR");
+            amountInput.setInputType(
+                    InputType.TYPE_CLASS_NUMBER
+                            | InputType.TYPE_NUMBER_FLAG_DECIMAL
+            );
+
+            LinearLayout container = new LinearLayout(this);
+            container.setPadding(dp(20), dp(8), dp(20), 0);
+            container.addView(amountInput);
+
+            AlertDialog dialog = new AlertDialog.Builder(this)
+                    .setTitle("Set Repair Amount")
+                    .setMessage(
+                            "Enter the final repair amount. " +
+                                    "This is for demo payments only."
+                    )
+                    .setView(container)
+                    .setNegativeButton("Cancel", null)
+                    .setPositiveButton("Save", null)
+                    .create();
+
+            dialog.setOnShowListener(unused -> {
+
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                        .setOnClickListener(v -> {
+
+                            String input = amountInput.getText()
+                                    .toString().trim();
+
+                            double amount;
+
+                            try {
+                                amount = Double.parseDouble(input);
+                            } catch (NumberFormatException e) {
+                                amountInput.setError("Enter a valid amount");
+                                return;
+                            }
+
+                            if (!Double.isFinite(amount) || amount <= 0) {
+                                amountInput.setError(
+                                        "Enter an amount greater than zero"
+                                );
+                                return;
+                            }
+
+                            dialog.getButton(
+                                    AlertDialog.BUTTON_POSITIVE
+                            ).setEnabled(false);
+
+                            Map<String, Object> updates = new HashMap<>();
+                            updates.put("paymentAmount", amount);
+                            updates.put("paymentStatus", "Unpaid");
+
+                            firestore.collection("appointments")
+                                    .document(appointmentId)
+                                    .update(updates)
+                                    .addOnSuccessListener(result -> {
+
+                                        dialog.dismiss();
+
+                                        Toast.makeText(
+                                                this,
+                                                "Repair amount saved",
+                                                Toast.LENGTH_SHORT
+                                        ).show();
+
+                                        loadAppointments();
+                                    })
+                                    .addOnFailureListener(e -> {
+
+                                        dialog.getButton(
+                                                AlertDialog.BUTTON_POSITIVE
+                                        ).setEnabled(true);
+
+                                        Toast.makeText(
+                                                this,
+                                                "Could not save amount: "
+                                                        + e.getMessage(),
+                                                Toast.LENGTH_LONG
+                                        ).show();
+                                    });
+                        });
+            });
+
+            dialog.show();
+        }
 
     private void updateStatus(String appointmentId, String newStatus) {
 
@@ -361,3 +491,4 @@ public class ManageAppointmentsActivity extends AppCompatActivity {
                 );
     }
 }
+
