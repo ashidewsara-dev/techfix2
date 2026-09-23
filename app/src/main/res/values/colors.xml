@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="tech_background">#101827</color>
+    <color name="tech_surface">#1C293B</color>
+    <color name="tech_surface_light">#29384E</color>
+    <color name="tech_teal">#74E5D1</color>
+    <color name="tech_text">#FFFFFF</color>
+    <color name="tech_text_secondary">#A7B4C9</color>
+    <color name="tech_warning">#F7C66D</color>
+</resources>

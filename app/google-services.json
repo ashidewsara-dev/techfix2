@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "148380573284",
+    "project_id": "techfix-b7cbb",
+    "storage_bucket": "techfix-b7cbb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:148380573284:android:e063b041f19c7534470971",
+        "android_client_info": {
+          "package_name": "com.techfix.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDG60ueywWjQxPTwqR6wx179zYcG3z1U9M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
