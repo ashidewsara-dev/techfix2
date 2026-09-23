@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/tech_background"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TECHFIX / ADMIN PORTAL"
+            android:textColor="@color/tech_teal"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Manage Services"
+            android:textColor="@color/tech_text"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Add services, update prices and manage your repair catalogue."
+            android:textColor="@color/tech_text_secondary"
+            android:textSize="14sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:background="@drawable/bg_tech_card"
+            android:orientation="vertical"
+            android:padding="18dp">
+
+            <TextView
+                android:id="@+id/txtFormTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Add New Service"
+                android:textColor="@color/tech_text"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/editServiceName"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_tech_input"
+                android:hint="Service name"
+                android:inputType="textCapSentences"
+                android:padding="12dp"
+                android:singleLine="true"
+                android:textColor="@color/tech_text"
+                android:textColorHint="@color/tech_text_secondary" />
+
+            <EditText
+                android:id="@+id/editServicePrice"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_tech_input"
+                android:hint="Starting price (LKR)"
+                android:inputType="numberDecimal"
+                android:padding="12dp"
+                android:singleLine="true"
+                android:textColor="@color/tech_text"
+                android:textColorHint="@color/tech_text_secondary" />
+
+            <EditText
+                android:id="@+id/editServiceDescription"
+                android:layout_width="match_parent"
+                android:layout_height="110dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_tech_input"
+                android:gravity="top"
+                android:hint="Service description"
+                android:inputType="textCapSentences|textMultiLine"
+                android:padding="12dp"
+                android:textColor="@color/tech_text"
+                android:textColorHint="@color/tech_text_secondary" />
+
+            <Button
+                android:id="@+id/btnSaveService"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="@color/tech_teal"
+                android:text="Add Service"
+                android:textAllCaps="false"
+                android:textColor="@color/tech_background"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnCancelEdit"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@color/tech_surface_light"
+                android:text="Cancel Editing"
+                android:textAllCaps="false"
+                android:textColor="@color/tech_text"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:text="Current Services"
+            android:textColor="@color/tech_text"
+            android:textSize="21sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnRefreshServices"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="@color/tech_surface_light"
+            android:text="Refresh Services"
+            android:textAllCaps="false"
+            android:textColor="@color/tech_text" />
+
+        <ProgressBar
+            android:id="@+id/servicesProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="18dp"
+            android:indeterminateTint="@color/tech_teal"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/txtNoServices"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:gravity="center"
+            android:padding="18dp"
+            android:text="No services added yet."
+            android:textColor="@color/tech_text_secondary"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/adminServicesContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical" />
+
+    </LinearLayout>
+
+</ScrollView>
