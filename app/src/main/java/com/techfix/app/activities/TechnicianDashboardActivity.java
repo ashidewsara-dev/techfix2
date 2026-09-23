@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.techfix.app.R;
 
+
 public class TechnicianDashboardActivity extends AppCompatActivity {
 
     private Button btnAssignedRepairs;
@@ -29,14 +30,15 @@ public class TechnicianDashboardActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
 
         // VIEW ASSIGNED REPAIRS
+
         btnAssignedRepairs.setOnClickListener(v -> {
 
-            Toast.makeText(
+            Intent intent = new Intent(
                     TechnicianDashboardActivity.this,
-                    "Assigned Repairs page coming next ......",
-                    Toast.LENGTH_SHORT
-            ).show();
+                    AssignedRepairsActivity.class
+            );
 
+            startActivity(intent);
         });
 
         // LOGOUT
