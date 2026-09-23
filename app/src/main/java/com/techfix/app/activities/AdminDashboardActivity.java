@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.techfix.app.R;
 
 public class AdminDashboardActivity extends AppCompatActivity {
@@ -32,6 +33,8 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_admin_dashboard);
 
+        // CONNECT XML ELEMENTS
+
         btnManageAppointments =
                 findViewById(R.id.btnManageAppointments);
 
@@ -53,11 +56,14 @@ public class AdminDashboardActivity extends AppCompatActivity {
         txtPendingRepairs =
                 findViewById(R.id.txtPendingRepairs);
 
+        // FIREBASE
+
         firebaseAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
 
 
-        // MANAGE APPOINTMENTS
+        // MANAGE REPAIR APPOINTMENTS
+
         btnManageAppointments.setOnClickListener(v -> {
 
             Intent intent = new Intent(
@@ -70,10 +76,11 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
 
         // MANAGE SERVICES
+
         btnManageServices.setOnClickListener(v -> {
 
             Toast.makeText(
-                    this,
+                    AdminDashboardActivity.this,
                     "Services management coming next",
                     Toast.LENGTH_SHORT
             ).show();
@@ -81,10 +88,11 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
 
         // MANAGE TECHNICIANS
+
         btnManageTechnicians.setOnClickListener(v -> {
 
             Toast.makeText(
-                    this,
+                    AdminDashboardActivity.this,
                     "Technician management coming next",
                     Toast.LENGTH_SHORT
             ).show();
@@ -92,10 +100,11 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
 
         // MANAGE SPARE PARTS
+
         btnManageParts.setOnClickListener(v -> {
 
             Toast.makeText(
-                    this,
+                    AdminDashboardActivity.this,
                     "Spare parts management coming next",
                     Toast.LENGTH_SHORT
             ).show();
@@ -103,6 +112,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
 
         // LOGOUT
+
         btnAdminLogout.setOnClickListener(v -> {
 
             firebaseAuth.signOut();
@@ -119,9 +129,10 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
             startActivity(intent);
         });
-
     }
 
+
+    // REFRESH STATISTICS WHEN DASHBOARD OPENS
 
     @Override
     protected void onStart() {
@@ -131,7 +142,8 @@ public class AdminDashboardActivity extends AppCompatActivity {
     }
 
 
-    // LOAD LIVE REPAIR COUNTS FROM FIRESTORE
+    // LOAD REPAIR STATISTICS FROM FIREBASE
+
     private void loadDashboardStatistics() {
 
         firestore.collection("appointments")
@@ -144,7 +156,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
                     int pendingRepairs = 0;
 
-                    for (com.google.firebase.firestore.QueryDocumentSnapshot document
+                    for (QueryDocumentSnapshot document
                             : queryDocumentSnapshots) {
 
                         String status =
@@ -162,7 +174,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
                     txtPendingRepairs.setText(
                             String.valueOf(pendingRepairs)
                     );
-
                 })
 
                 .addOnFailureListener(e -> {
@@ -172,7 +183,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
                     Toast.makeText(
                             AdminDashboardActivity.this,
-                            "Unable to load statistics: "
+                            "Failed to load statistics: "
                                     + e.getMessage(),
                             Toast.LENGTH_LONG
                     ).show();

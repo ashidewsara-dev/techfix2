@@ -1,86 +1,320 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/tech_background"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="20dp">
+
+        <!-- HEADER -->
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TechFix"
-            android:textSize="32sp"
+            android:text="TECHFIX / CUSTOMER PORTAL"
+            android:textColor="@color/tech_teal"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.1" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="Welcome to TechFix"
+            android:textColor="@color/tech_text"
+            android:textSize="28sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/txtWelcome"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:text="Welcome!"
-            android:textSize="20sp" />
+            android:layout_marginTop="6dp"
+            android:text="Your device care, made simple."
+            android:textColor="@color/tech_text_secondary"
+            android:textSize="15sp" />
+
+
+        <!-- BOOK REPAIR CARD -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:background="@drawable/bg_tech_card"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Need a repair?"
+                android:textColor="@color/tech_text"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Book a repair appointment for your phone, laptop, tablet or desktop."
+                android:textColor="@color/tech_text_secondary"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/btnBookRepair"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="18dp"
+                android:backgroundTint="@color/tech_teal"
+                android:text="Book a Repair  →"
+                android:textAllCaps="false"
+                android:textColor="@color/tech_background"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+
+        <!-- QUICK ACCESS -->
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
-            android:text="What would you like to do?"
-            android:textSize="18sp"
+            android:text="Quick Access"
+            android:textColor="@color/tech_text"
+            android:textSize="21sp"
             android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/btnBookRepair"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Book a Repair" />
 
-        <Button
-            android:id="@+id/btnTrackRepair"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Track Repair" />
+        <!-- TRACK REPAIR CARD -->
 
-        <Button
-            android:id="@+id/btnServices"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Repair Services" />
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_tech_card"
+            android:orientation="vertical"
+            android:padding="18dp">
 
-        <Button
-            android:id="@+id/btnHistory"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Repair History" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Track Your Repair"
+                android:textColor="@color/tech_text"
+                android:textSize="19sp"
+                android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/btnBranches"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Find a Branch" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Check the current status of your repair appointments."
+                android:textColor="@color/tech_text_secondary"
+                android:textSize="13sp" />
 
-        <Button
-            android:id="@+id/btnProfile"
+            <Button
+                android:id="@+id/btnTrackRepair"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="14dp"
+                android:backgroundTint="@color/tech_teal"
+                android:text="Track Repair  →"
+                android:textAllCaps="false"
+                android:textColor="@color/tech_background"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+
+        <!-- REPAIR SERVICES CARD -->
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="My Profile" />
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_tech_card"
+            android:orientation="vertical"
+            android:padding="18dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Repair Services"
+                android:textColor="@color/tech_text"
+                android:textSize="19sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Explore our repair services and estimated prices."
+                android:textColor="@color/tech_text_secondary"
+                android:textSize="13sp" />
+
+            <Button
+                android:id="@+id/btnServices"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="14dp"
+                android:backgroundTint="@color/tech_teal"
+                android:text="View Services  →"
+                android:textAllCaps="false"
+                android:textColor="@color/tech_background"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+
+        <!-- REPAIR HISTORY CARD -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_tech_card"
+            android:orientation="vertical"
+            android:padding="18dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Repair History"
+                android:textColor="@color/tech_text"
+                android:textSize="19sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="View your previously completed repairs."
+                android:textColor="@color/tech_text_secondary"
+                android:textSize="13sp" />
+
+            <Button
+                android:id="@+id/btnHistory"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="14dp"
+                android:backgroundTint="@color/tech_teal"
+                android:text="View History  →"
+                android:textAllCaps="false"
+                android:textColor="@color/tech_background"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+
+        <!-- BRANCHES CARD -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_tech_card"
+            android:orientation="vertical"
+            android:padding="18dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Find a Branch"
+                android:textColor="@color/tech_text"
+                android:textSize="19sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Find the nearest TechFix branch using your location."
+                android:textColor="@color/tech_text_secondary"
+                android:textSize="13sp" />
+
+            <Button
+                android:id="@+id/btnBranches"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="14dp"
+                android:backgroundTint="@color/tech_teal"
+                android:text="Find Nearest Branch  →"
+                android:textAllCaps="false"
+                android:textColor="@color/tech_background"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+
+        <!-- PROFILE CARD -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_tech_card"
+            android:orientation="vertical"
+            android:padding="18dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="My Profile"
+                android:textColor="@color/tech_text"
+                android:textSize="19sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="View your account and contact information."
+                android:textColor="@color/tech_text_secondary"
+                android:textSize="13sp" />
+
+            <Button
+                android:id="@+id/btnProfile"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="14dp"
+                android:backgroundTint="@color/tech_teal"
+                android:text="View Profile  →"
+                android:textAllCaps="false"
+                android:textColor="@color/tech_background"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+
+        <!-- LOGOUT -->
 
         <Button
             android:id="@+id/btnLogout"
             android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="28dp"
+            android:backgroundTint="@color/tech_surface_light"
+            android:text="Log Out"
+            android:textAllCaps="false"
+            android:textColor="@color/tech_text"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:text="Logout" />
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:text="TECHFIX  •  CUSTOMER PORTAL"
+            android:textColor="@color/tech_text_secondary"
+            android:textSize="11sp" />
 
     </LinearLayout>
 

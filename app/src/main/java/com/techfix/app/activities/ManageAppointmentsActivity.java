@@ -1,5 +1,6 @@
 package com.techfix.app.activities;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -14,17 +15,28 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.techfix.app.R;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 public class ManageAppointmentsActivity extends AppCompatActivity {
 
     private LinearLayout adminAppointmentsContainer;
     private ProgressBar adminAppointmentsProgressBar;
     private TextView txtNoAppointments;
-
     private FirebaseFirestore firestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getWindow().setStatusBarColor(
+                getResources().getColor(R.color.tech_background)
+        );
+
+        getWindow().setNavigationBarColor(
+                getResources().getColor(R.color.tech_background)
+        );
 
         setContentView(R.layout.activity_manage_appointments);
 
@@ -42,223 +54,310 @@ public class ManageAppointmentsActivity extends AppCompatActivity {
         loadAppointments();
     }
 
+    private int dp(int value) {
+        return (int) (value * getResources()
+                .getDisplayMetrics().density + 0.5f);
+    }
 
-    // LOAD ALL REPAIR APPOINTMENTS
+    private TextView createText(
+            String value,
+            int size,
+            int color,
+            boolean bold
+    ) {
+        TextView text = new TextView(this);
+        text.setText(value);
+        text.setTextSize(size);
+        text.setTextColor(color);
+
+        if (bold) {
+            text.setTypeface(null, android.graphics.Typeface.BOLD);
+        }
+
+        return text;
+    }
+
+    private Button createButton(String label) {
+        Button button = new Button(this);
+
+        button.setText(label);
+        button.setAllCaps(false);
+        button.setTextSize(14);
+        button.setTextColor(
+                getResources().getColor(R.color.tech_background)
+        );
+        button.setBackgroundTintList(
+                getResources().getColorStateList(R.color.tech_teal)
+        );
+
+        return button;
+    }
+
     private void loadAppointments() {
 
         adminAppointmentsProgressBar.setVisibility(View.VISIBLE);
 
         firestore.collection("appointments")
                 .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
+                .addOnSuccessListener(snapshots -> {
 
                     adminAppointmentsProgressBar.setVisibility(View.GONE);
                     adminAppointmentsContainer.removeAllViews();
 
-                    if (queryDocumentSnapshots.isEmpty()) {
-
+                    if (snapshots.isEmpty()) {
                         txtNoAppointments.setVisibility(View.VISIBLE);
                         return;
                     }
 
                     txtNoAppointments.setVisibility(View.GONE);
 
-                    for (QueryDocumentSnapshot document
-                            : queryDocumentSnapshots) {
+                    for (QueryDocumentSnapshot document : snapshots) {
 
                         String appointmentId = document.getId();
 
-                        String category =
-                                document.getString("deviceCategory");
+                        String category = document.getString("deviceCategory");
+                        String brand = document.getString("brand");
+                        String model = document.getString("model");
+                        String problem = document.getString("problem");
+                        String branch = document.getString("branch");
+                        String date = document.getString("preferredDate");
+                        String status = document.getString("status");
+                        String technicianId = document.getString("technicianId");
 
-                        String brand =
-                                document.getString("brand");
+                        // DARK REPAIR CARD
+                        LinearLayout card = new LinearLayout(this);
+                        card.setOrientation(LinearLayout.VERTICAL);
+                        card.setPadding(
+                                dp(18), dp(18), dp(18), dp(18)
+                        );
+                        card.setBackgroundResource(R.drawable.bg_tech_card);
 
-                        String model =
-                                document.getString("model");
-
-                        String problem =
-                                document.getString("problem");
-
-                        String branch =
-                                document.getString("branch");
-
-                        String date =
-                                document.getString("preferredDate");
-
-                        String status =
-                                document.getString("status");
-
-
-                        // APPOINTMENT DETAILS
-                        TextView appointmentView =
-                                new TextView(
-                                        ManageAppointmentsActivity.this
+                        LinearLayout.LayoutParams cardParams =
+                                new LinearLayout.LayoutParams(
+                                        LinearLayout.LayoutParams.MATCH_PARENT,
+                                        LinearLayout.LayoutParams.WRAP_CONTENT
                                 );
 
-                        String details =
-                                "Device: " + brand + " " + model
-                                        + "\nCategory: " + category
-                                        + "\nProblem: " + problem
-                                        + "\nBranch: " + branch
-                                        + "\nDate: " + date
-                                        + "\nStatus: " + status;
+                        cardParams.bottomMargin = dp(16);
+                        card.setLayoutParams(cardParams);
 
-                        appointmentView.setText(details);
-                        appointmentView.setTextSize(16);
-
-                        appointmentView.setPadding(
-                                30,
-                                30,
-                                30,
-                                15
+                        // DEVICE TITLE
+                        TextView deviceTitle = createText(
+                                brand + " " + model,
+                                20,
+                                getResources().getColor(R.color.tech_text),
+                                true
                         );
 
+                        card.addView(deviceTitle);
 
-                        // SET PENDING BUTTON
-                        Button btnPending =
-                                new Button(
-                                        ManageAppointmentsActivity.this
-                                );
+                        // CATEGORY
+                        TextView categoryText = createText(
+                                category == null ? "Repair Request" : category,
+                                13,
+                                getResources().getColor(
+                                        R.color.tech_text_secondary
+                                ),
+                                false
+                        );
 
-                        btnPending.setText("Set Pending");
+                        categoryText.setPadding(0, dp(4), 0, dp(12));
+                        card.addView(categoryText);
 
+                        // STATUS BADGE
+                        TextView statusBadge = createText(
+                                "●  " + (status == null ? "Pending" : status),
+                                14,
+                                getResources().getColor(R.color.tech_warning),
+                                true
+                        );
 
-                        // SET IN PROGRESS BUTTON
-                        Button btnInProgress =
-                                new Button(
-                                        ManageAppointmentsActivity.this
-                                );
-
-                        btnInProgress.setText("Set In Progress");
-
-
-                        // SET COMPLETED BUTTON
-                        Button btnCompleted =
-                                new Button(
-                                        ManageAppointmentsActivity.this
-                                );
-
-                        btnCompleted.setText("Set Completed");
-
-
-                        // ASSIGN TECHNICIAN BUTTON
-                        Button btnAssignTechnician =
-                                new Button(
-                                        ManageAppointmentsActivity.this
-                                );
-
-                        btnAssignTechnician.setText("Assign Technician");
-
-
-                        // PENDING BUTTON ACTION
-                        btnPending.setOnClickListener(v -> {
-
-                            updateStatus(
-                                    appointmentId,
-                                    "Pending"
+                        if ("Completed".equalsIgnoreCase(status)) {
+                            statusBadge.setTextColor(
+                                    getResources().getColor(R.color.tech_teal)
                             );
+                        } else if ("In Progress".equalsIgnoreCase(status)) {
+                            statusBadge.setTextColor(0xFF79B8FF);
+                        }
 
-                        });
+                        card.addView(statusBadge);
 
+                        // REPAIR DETAILS
+                        String details =
+                                "\nProblem: " + problem
+                                        + "\nBranch: " + branch
+                                        + "\nPreferred Date: " + date
+                                        + "\nTechnician: "
+                                        + ((technicianId == null
+                                        || technicianId.isEmpty())
+                                        ? "Not assigned" : "Assigned");
 
-                        // IN PROGRESS BUTTON ACTION
-                        btnInProgress.setOnClickListener(v -> {
+                        TextView detailsView = createText(
+                                details,
+                                14,
+                                getResources().getColor(
+                                        R.color.tech_text_secondary
+                                ),
+                                false
+                        );
 
-                            updateStatus(
-                                    appointmentId,
-                                    "In Progress"
-                            );
+                        detailsView.setLineSpacing(dp(4), 1f);
+                        card.addView(detailsView);
 
-                        });
+                        // BUTTONS
+                        Button btnPending = createButton("Set Pending");
+                        Button btnInProgress = createButton("Set In Progress");
+                        Button btnCompleted = createButton("Set Completed");
+                        Button btnAssign = createButton("Assign Technician");
 
+                        btnPending.setOnClickListener(v ->
+                                updateStatus(appointmentId, "Pending")
+                        );
 
-                        // COMPLETED BUTTON ACTION
-                        btnCompleted.setOnClickListener(v -> {
+                        btnInProgress.setOnClickListener(v ->
+                                updateStatus(appointmentId, "In Progress")
+                        );
 
-                            updateStatus(
-                                    appointmentId,
-                                    "Completed"
-                            );
+                        btnCompleted.setOnClickListener(v ->
+                                updateStatus(appointmentId, "Completed")
+                        );
 
-                        });
+                        btnAssign.setOnClickListener(v ->
+                                showTechnicianPicker(appointmentId, branch)
+                        );
 
+                        card.addView(btnPending);
+                        card.addView(btnInProgress);
+                        card.addView(btnCompleted);
+                        card.addView(btnAssign);
 
-                        // ASSIGN TECHNICIAN BUTTON ACTION
-                        btnAssignTechnician.setOnClickListener(v -> {
-
-                            Toast.makeText(
-                                    ManageAppointmentsActivity.this,
-                                    "Technician assignment coming next",
-                                    Toast.LENGTH_SHORT
-                            ).show();
-
-                        });
-
-
-                        // ADD DETAILS AND BUTTONS TO SCREEN
-                        adminAppointmentsContainer
-                                .addView(appointmentView);
-
-                        adminAppointmentsContainer
-                                .addView(btnPending);
-
-                        adminAppointmentsContainer
-                                .addView(btnInProgress);
-
-                        adminAppointmentsContainer
-                                .addView(btnCompleted);
-
-                        adminAppointmentsContainer
-                                .addView(btnAssignTechnician);
+                        adminAppointmentsContainer.addView(card);
                     }
-
                 })
                 .addOnFailureListener(e -> {
-
-                    adminAppointmentsProgressBar
-                            .setVisibility(View.GONE);
+                    adminAppointmentsProgressBar.setVisibility(View.GONE);
 
                     Toast.makeText(
-                            ManageAppointmentsActivity.this,
-                            "Failed to load appointments: "
-                                    + e.getMessage(),
+                            this,
+                            "Failed to load appointments: " + e.getMessage(),
                             Toast.LENGTH_LONG
                     ).show();
-
                 });
     }
 
-
-    // UPDATE REPAIR STATUS IN FIREBASE
-    private void updateStatus(
-            String appointmentId,
-            String newStatus
-    ) {
+    private void updateStatus(String appointmentId, String newStatus) {
 
         firestore.collection("appointments")
                 .document(appointmentId)
                 .update("status", newStatus)
-
                 .addOnSuccessListener(unused -> {
 
                     Toast.makeText(
-                            ManageAppointmentsActivity.this,
-                            "Status changed to " + newStatus,
+                            this,
+                            "Status updated to " + newStatus,
                             Toast.LENGTH_SHORT
                     ).show();
 
                     loadAppointments();
-
                 })
-                .addOnFailureListener(e -> {
+                .addOnFailureListener(e ->
+                        Toast.makeText(
+                                this,
+                                "Update failed: " + e.getMessage(),
+                                Toast.LENGTH_LONG
+                        ).show()
+                );
+    }
 
-                    Toast.makeText(
-                            ManageAppointmentsActivity.this,
-                            "Update failed: " + e.getMessage(),
-                            Toast.LENGTH_LONG
-                    ).show();
+    private void showTechnicianPicker(
+            String appointmentId,
+            String appointmentBranch
+    ) {
 
-                });
+        firestore.collection("users")
+                .whereEqualTo("role", "technician")
+                .get()
+                .addOnSuccessListener(snapshots -> {
+
+                    ArrayList<String> technicianNames = new ArrayList<>();
+                    ArrayList<String> technicianIds = new ArrayList<>();
+
+                    for (QueryDocumentSnapshot document : snapshots) {
+
+                        String branch = document.getString("branch");
+
+                        if (appointmentBranch == null
+                                || !appointmentBranch.equalsIgnoreCase(branch)) {
+                            continue;
+                        }
+
+                        String name = document.getString("name");
+
+                        technicianNames.add(
+                                name == null ? "Unnamed Technician" : name
+                        );
+
+                        technicianIds.add(document.getId());
+                    }
+
+                    if (technicianIds.isEmpty()) {
+
+                        Toast.makeText(
+                                this,
+                                "No technicians found for " + appointmentBranch,
+                                Toast.LENGTH_LONG
+                        ).show();
+
+                        return;
+                    }
+
+                    new AlertDialog.Builder(this)
+                            .setTitle("Assign Technician")
+                            .setItems(
+                                    technicianNames.toArray(new String[0]),
+                                    (dialog, which) -> {
+
+                                        String selectedId =
+                                                technicianIds.get(which);
+
+                                        Map<String, Object> updates =
+                                                new HashMap<>();
+
+                                        updates.put("technicianId", selectedId);
+
+                                        firestore.collection("appointments")
+                                                .document(appointmentId)
+                                                .update(updates)
+                                                .addOnSuccessListener(unused -> {
+
+                                                    Toast.makeText(
+                                                            this,
+                                                            "Technician assigned successfully",
+                                                            Toast.LENGTH_SHORT
+                                                    ).show();
+
+                                                    loadAppointments();
+                                                })
+                                                .addOnFailureListener(e ->
+                                                        Toast.makeText(
+                                                                this,
+                                                                "Assignment failed: "
+                                                                        + e.getMessage(),
+                                                                Toast.LENGTH_LONG
+                                                        ).show()
+                                                );
+                                    }
+                            )
+                            .setNegativeButton("Cancel", null)
+                            .show();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(
+                                this,
+                                "Failed to load technicians: "
+                                        + e.getMessage(),
+                                Toast.LENGTH_LONG
+                        ).show()
+                );
     }
 }

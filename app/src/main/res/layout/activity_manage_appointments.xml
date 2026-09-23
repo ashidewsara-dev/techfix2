@@ -3,35 +3,58 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/tech_background"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="20dp">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Manage Repair Appointments"
-            android:textSize="26sp"
+            android:text="TECHFIX / ADMIN PORTAL"
+            android:textColor="@color/tech_teal"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.1" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="Repair Appointments"
+            android:textColor="@color/tech_text"
+            android:textSize="28sp"
             android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Manage bookings, repair progress and technician assignments."
+            android:textColor="@color/tech_text_secondary"
+            android:textSize="14sp" />
 
         <ProgressBar
             android:id="@+id/adminAppointmentsProgressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="25dp" />
+            android:layout_marginTop="28dp"
+            android:indeterminateTint="@color/tech_teal" />
 
         <TextView
             android:id="@+id/txtNoAppointments"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="30dp"
+            android:gravity="center"
             android:text="No repair appointments found"
+            android:textColor="@color/tech_text_secondary"
             android:textSize="16sp"
             android:visibility="gone" />
 
