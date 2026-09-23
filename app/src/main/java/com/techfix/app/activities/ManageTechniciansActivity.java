@@ -28,6 +28,9 @@ public class ManageTechniciansActivity extends AppCompatActivity {
     private EditText editTechnicianName;
     private EditText editTechnicianPhone;
 
+    private EditText editTechnicianBranch;
+
+
     private TextView txtTechnicianFormTitle;
     private TextView txtTechnicianCount;
     private TextView txtNoTechnicians;
@@ -57,6 +60,10 @@ public class ManageTechniciansActivity extends AppCompatActivity {
 
         editTechnicianPhone =
                 findViewById(R.id.editTechnicianPhone);
+
+        editTechnicianBranch =
+                findViewById(R.id.editTechnicianBranch);
+
 
         txtTechnicianFormTitle =
                 findViewById(R.id.txtTechnicianFormTitle);
@@ -110,6 +117,9 @@ public class ManageTechniciansActivity extends AppCompatActivity {
         String phone = editTechnicianPhone.getText()
                 .toString().trim();
 
+        String branch = editTechnicianBranch.getText()
+                .toString().trim();
+
         if (email.isEmpty()) {
             editTechnicianEmail.setError("Enter an email");
             return;
@@ -125,6 +135,14 @@ public class ManageTechniciansActivity extends AppCompatActivity {
             return;
         }
 
+
+
+        if (branch.isEmpty()) {
+            editTechnicianBranch.setError("Enter a branch");
+            return;
+        }
+
+
         btnSaveTechnician.setEnabled(false);
 
         if (editingTechnicianId != null) {
@@ -132,6 +150,8 @@ public class ManageTechniciansActivity extends AppCompatActivity {
             Map<String, Object> updates = new HashMap<>();
             updates.put("name", name);
             updates.put("phone", phone);
+            updates.put("branch", branch);
+
 
             firestore.collection("users")
                     .document(editingTechnicianId)
@@ -212,6 +232,8 @@ public class ManageTechniciansActivity extends AppCompatActivity {
                     updates.put("name", name);
                     updates.put("phone", phone);
                     updates.put("role", "technician");
+                    updates.put("branch", branch);
+
 
                     firestore.collection("users")
                             .document(user.getId())
@@ -314,6 +336,8 @@ public class ManageTechniciansActivity extends AppCompatActivity {
         String name = safeValue(document.getString("name"));
         String email = safeValue(document.getString("email"));
         String phone = safeValue(document.getString("phone"));
+        String branch = safeValue(document.getString("branch"));
+
 
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
@@ -344,6 +368,8 @@ public class ManageTechniciansActivity extends AppCompatActivity {
 
         addDetail(card, "Email", email);
         addDetail(card, "Phone", phone);
+        addDetail(card, "Branch", branch);
+
 
         LinearLayout buttonRow = new LinearLayout(this);
         buttonRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -392,6 +418,11 @@ public class ManageTechniciansActivity extends AppCompatActivity {
 
             editTechnicianName.setText(name);
             editTechnicianPhone.setText(phone);
+
+            editTechnicianBranch.setText(
+                    document.getString("branch")
+            );
+
 
             btnSaveTechnician.setText("Save Changes");
             btnCancelTechnicianEdit.setVisibility(View.VISIBLE);
@@ -465,6 +496,9 @@ public class ManageTechniciansActivity extends AppCompatActivity {
 
         editTechnicianName.setText("");
         editTechnicianPhone.setText("");
+
+        editTechnicianBranch.setText("");
+
 
         txtTechnicianFormTitle.setText(
                 "Add Existing User as Technician"
