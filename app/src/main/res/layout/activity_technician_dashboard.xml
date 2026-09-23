@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/tech_background"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,33 +13,90 @@
         android:padding="24dp">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="TECHFIX / TECHNICIAN PORTAL"
+            android:textColor="@color/tech_teal"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.12" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="Technician Dashboard"
+            android:textColor="@color/tech_text"
             android:textSize="28sp"
             android:textStyle="bold" />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:text="Manage assigned repair jobs"
-            android:textSize="16sp" />
-
-        <Button
-            android:id="@+id/btnAssignedRepairs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:text="View Assigned Repairs" />
+            android:layout_marginTop="8dp"
+            android:text="Manage your assigned repair jobs and track their progress."
+            android:textColor="@color/tech_text_secondary"
+            android:textSize="14sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:background="@drawable/bg_tech_card"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="YOUR WORKSPACE"
+                android:textColor="@color/tech_teal"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Assigned Repairs"
+                android:textColor="@color/tech_text"
+                android:textSize="21sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="View your assigned devices, check repair details, and update job statuses."
+                android:textColor="@color/tech_text_secondary"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/btnAssignedRepairs"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="20dp"
+                android:backgroundTint="@color/tech_teal"
+                android:text="View Assigned Repairs"
+                android:textAllCaps="false"
+                android:textColor="@color/tech_background"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
 
         <Button
             android:id="@+id/btnTechnicianLogout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Logout" />
+            android:layout_height="52dp"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="@color/tech_surface_light"
+            android:text="Logout"
+            android:textAllCaps="false"
+            android:textColor="@color/tech_text"
+            android:textSize="15sp"
+            android:textStyle="bold" />
 
     </LinearLayout>
-
 </ScrollView>
