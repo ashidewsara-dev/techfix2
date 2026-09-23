@@ -79,13 +79,13 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         btnManageServices.setOnClickListener(v -> {
 
-            Toast.makeText(
+            Intent intent = new Intent(
                     AdminDashboardActivity.this,
-                    "Services management coming next",
-                    Toast.LENGTH_SHORT
-            ).show();
-        });
+                    ManageServicesActivity.class
+            );
 
+            startActivity(intent);
+        });
 
         // MANAGE TECHNICIANS
 
