@@ -89,14 +89,17 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         // MANAGE TECHNICIANS
 
+
         btnManageTechnicians.setOnClickListener(v -> {
 
-            Toast.makeText(
+            Intent intent = new Intent(
                     AdminDashboardActivity.this,
-                    "Technician management coming next",
-                    Toast.LENGTH_SHORT
-            ).show();
+                    ManageTechniciansActivity.class
+            );
+
+            startActivity(intent);
         });
+
 
 
         // MANAGE SPARE PARTS
