@@ -3,6 +3,7 @@ package com.techfix.app.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -27,6 +28,7 @@ public class CustomerDashboardActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_customer_dashboard);
 
+        // Connect buttons
         btnBookRepair = findViewById(R.id.btnBookRepair);
         btnTrackRepair = findViewById(R.id.btnTrackRepair);
         btnServices = findViewById(R.id.btnServices);
@@ -37,52 +39,77 @@ public class CustomerDashboardActivity extends AppCompatActivity {
 
         firebaseAuth = FirebaseAuth.getInstance();
 
-        // BOOK REPAIR
+
+        // BOOK A REPAIR
         btnBookRepair.setOnClickListener(v -> {
-            startActivity(new Intent(
+
+            Intent intent = new Intent(
                     CustomerDashboardActivity.this,
                     BookRepairActivity.class
-            ));
+            );
+
+            startActivity(intent);
         });
+
 
         // TRACK REPAIR
         btnTrackRepair.setOnClickListener(v -> {
-            startActivity(new Intent(
+
+            Intent intent = new Intent(
                     CustomerDashboardActivity.this,
                     TrackRepairActivity.class
-            ));
+            );
+
+            startActivity(intent);
         });
+
 
         // REPAIR SERVICES
         btnServices.setOnClickListener(v -> {
-            startActivity(new Intent(
+
+            Intent intent = new Intent(
                     CustomerDashboardActivity.this,
-                    ServicesActivity.class
-            ));
+                    ServiceActivity.class
+            );
+
+            startActivity(intent);
         });
+
 
         // REPAIR HISTORY
         btnHistory.setOnClickListener(v -> {
-            startActivity(new Intent(
+
+            Intent intent = new Intent(
                     CustomerDashboardActivity.this,
                     RepairHistoryActivity.class
-            ));
+            );
+
+            startActivity(intent);
         });
 
-        // FIND NEAREST BRANCH
+
+        // FIND A BRANCH
         btnBranches.setOnClickListener(v -> {
-            startActivity(new Intent(
+
+            Intent intent = new Intent(
                     CustomerDashboardActivity.this,
                     BranchesActivity.class
-            ));
+            );
+
+            startActivity(intent);
         });
+
 
         // MY PROFILE
         btnProfile.setOnClickListener(v -> {
-            startActivity(new Intent(
+
+            Intent intent = new Intent(
                     CustomerDashboardActivity.this,
                     ProfileActivity.class
-            ));
+            );
+
+            startActivity(intent);
+
         });
 
         // LOGOUT
@@ -95,12 +122,9 @@ public class CustomerDashboardActivity extends AppCompatActivity {
                     LoginActivitymain.class
             );
 
-            intent.setFlags(
-                    Intent.FLAG_ACTIVITY_NEW_TASK
-                            | Intent.FLAG_ACTIVITY_CLEAR_TASK
-            );
-
             startActivity(intent);
+
+            finish();
         });
     }
 }
