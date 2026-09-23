@@ -115,6 +115,12 @@ public class LoginActivitymain extends AppCompatActivity {
                                                 documentSnapshot
                                                         .getString("role");
 
+                                        Toast.makeText(
+                                                LoginActivitymain.this,
+                                                "Logged-in UID: " + userId + "\nFirestore role: " + role,
+                                                Toast.LENGTH_LONG
+                                        ).show();
+
 
                                         if ("admin".equalsIgnoreCase(role)) {
 
