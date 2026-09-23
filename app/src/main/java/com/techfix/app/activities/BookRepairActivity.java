@@ -1,22 +1,32 @@
+
 package com.techfix.app.activities;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-import com.techfix.app.R;
-import java.util.Calendar;
-import java.util.Locale;
-import android.content.Intent;
-import android.net.Uri;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.techfix.app.R;
+
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class BookRepairActivity extends AppCompatActivity {
@@ -34,17 +44,25 @@ public class BookRepairActivity extends AppCompatActivity {
     private Button btnSelectDate;
     private Button btnSelectImage;
     private Button btnSubmitRepair;
+
+    private ImageView imagePreview;
+
     private Uri imageUri;
+    private Bitmap cameraBitmap;
+
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firestore;
 
-    private static final int IMAGE_REQUEST_CODE = 100;
+    private ActivityResultLauncher<Void> cameraLauncher;
+    private ActivityResultLauncher<String> galleryLauncher;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_book_repair);
+
         firebaseAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
 
@@ -62,6 +80,19 @@ public class BookRepairActivity extends AppCompatActivity {
         btnSelectImage = findViewById(R.id.btnSelectImage);
         btnSubmitRepair = findViewById(R.id.btnSubmitRepair);
 
+        imagePreview = findViewById(R.id.imagePreview);
+
+        setupSpinners();
+        setupImageLaunchers();
+
+        btnSelectDate.setOnClickListener(v -> showDatePicker());
+
+        btnSelectImage.setOnClickListener(v -> selectImage());
+
+        btnSubmitRepair.setOnClickListener(v -> submitRepair());
+    }
+
+    private void setupSpinners() {
 
         String[] deviceCategories = {
                 "Mobile Phone",
@@ -73,16 +104,15 @@ public class BookRepairActivity extends AppCompatActivity {
         ArrayAdapter<String> categoryAdapter =
                 new ArrayAdapter<>(
                         this,
-                        android.R.layout.simple_spinner_item,
+                        R.layout.item_tech_spinner,
                         deviceCategories
                 );
 
         categoryAdapter.setDropDownViewResource(
-                android.R.layout.simple_spinner_dropdown_item
+                R.layout.item_tech_spinner_dropdown
         );
 
         spCategory.setAdapter(categoryAdapter);
-
 
         String[] branches = {
                 "Colombo",
@@ -92,24 +122,90 @@ public class BookRepairActivity extends AppCompatActivity {
         ArrayAdapter<String> branchAdapter =
                 new ArrayAdapter<>(
                         this,
-                        android.R.layout.simple_spinner_item,
+                        R.layout.item_tech_spinner,
                         branches
                 );
 
         branchAdapter.setDropDownViewResource(
-                android.R.layout.simple_spinner_dropdown_item
+                R.layout.item_tech_spinner_dropdown
         );
 
         spBranch.setAdapter(branchAdapter);
-
-
-        btnSelectDate.setOnClickListener(v -> showDatePicker());
-
-        btnSelectImage.setOnClickListener(v -> selectImage());
-
-        btnSubmitRepair.setOnClickListener(v -> submitRepair());
     }
 
+    private void setupImageLaunchers() {
+
+        // Opens the camera and returns a preview-sized photo.
+        cameraLauncher = registerForActivityResult(
+                new ActivityResultContracts.TakePicturePreview(),
+                bitmap -> {
+
+                    if (bitmap != null) {
+
+                        cameraBitmap = bitmap;
+                        imageUri = null;
+
+                        imagePreview.setImageBitmap(bitmap);
+                        imagePreview.setVisibility(View.VISIBLE);
+
+                        txtImage.setText("Camera photo captured ✓");
+
+                        Toast.makeText(
+                                this,
+                                "Photo captured successfully",
+                                Toast.LENGTH_SHORT
+                        ).show();
+                    }
+                }
+        );
+
+        // Opens the gallery / Android photo picker.
+        galleryLauncher = registerForActivityResult(
+                new ActivityResultContracts.GetContent(),
+                uri -> {
+
+                    if (uri != null) {
+
+                        imageUri = uri;
+                        cameraBitmap = null;
+
+                        imagePreview.setImageURI(uri);
+                        imagePreview.setVisibility(View.VISIBLE);
+
+                        txtImage.setText("Gallery image selected ✓");
+
+                        Toast.makeText(
+                                this,
+                                "Image selected successfully",
+                                Toast.LENGTH_SHORT
+                        ).show();
+                    }
+                }
+        );
+    }
+
+    private void selectImage() {
+
+        String[] options = {
+                "Take Photo with Camera",
+                "Choose from Gallery"
+        };
+
+        new AlertDialog.Builder(this)
+                .setTitle("Select Device Image")
+                .setItems(options, (dialog, which) -> {
+
+                    if (which == 0) {
+
+                        cameraLauncher.launch(null);
+
+                    } else {
+
+                        galleryLauncher.launch("image/*");
+                    }
+                })
+                .show();
+    }
 
     private void showDatePicker() {
 
@@ -140,54 +236,12 @@ public class BookRepairActivity extends AppCompatActivity {
                         day
                 );
 
-        datePickerDialog.getDatePicker()
-                .setMinDate(System.currentTimeMillis());
-
         datePickerDialog.show();
-    }
 
-
-    private void selectImage() {
-
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-
-        intent.setType("image/*");
-
-        startActivityForResult(
-                intent,
-                IMAGE_REQUEST_CODE
+        datePickerDialog.getDatePicker().setMinDate(
+                System.currentTimeMillis() - 1000
         );
     }
-    @Override
-    protected void onActivityResult(
-            int requestCode,
-            int resultCode,
-            Intent data
-    ) {
-
-        super.onActivityResult(
-                requestCode,
-                resultCode,
-                data
-        );
-
-        if (requestCode == IMAGE_REQUEST_CODE
-                && resultCode == RESULT_OK
-                && data != null
-                && data.getData() != null) {
-
-            imageUri = data.getData();
-
-            txtImage.setText("Device image selected ✓");
-
-            Toast.makeText(
-                    this,
-                    "Image selected successfully",
-                    Toast.LENGTH_SHORT
-            ).show();
-        }
-    }
-
 
     private void submitRepair() {
 
@@ -200,29 +254,27 @@ public class BookRepairActivity extends AppCompatActivity {
 
         String date = txtDate.getText().toString();
 
-
-        // Check brand
         if (brand.isEmpty()) {
+
             editBrand.setError("Enter device brand");
+            editBrand.requestFocus();
             return;
         }
 
-
-        // Check model
         if (model.isEmpty()) {
+
             editModel.setError("Enter device model");
+            editModel.requestFocus();
             return;
         }
 
-
-        // Check problem
         if (problem.isEmpty()) {
+
             editProblem.setError("Describe the problem");
+            editProblem.requestFocus();
             return;
         }
 
-
-        // Check date
         if (date.equals("No date selected")) {
 
             Toast.makeText(
@@ -234,8 +286,6 @@ public class BookRepairActivity extends AppCompatActivity {
             return;
         }
 
-
-        // Check logged-in customer
         if (firebaseAuth.getCurrentUser() == null) {
 
             Toast.makeText(
@@ -247,32 +297,21 @@ public class BookRepairActivity extends AppCompatActivity {
             return;
         }
 
-
         String customerId =
                 firebaseAuth.getCurrentUser().getUid();
 
-
-        // Create repair appointment data
         Map<String, Object> repairData = new HashMap<>();
 
         repairData.put("customerId", customerId);
-
         repairData.put("deviceCategory", category);
-
         repairData.put("brand", brand);
-
         repairData.put("model", model);
-
         repairData.put("problem", problem);
-
         repairData.put("preferredDate", date);
-
         repairData.put("branch", branch);
 
         repairData.put("status", "Pending");
-
         repairData.put("paymentStatus", "Unpaid");
-
         repairData.put("technicianId", "");
 
         repairData.put(
@@ -280,8 +319,10 @@ public class BookRepairActivity extends AppCompatActivity {
                 System.currentTimeMillis()
         );
 
+        // Prevent duplicate submissions while Firestore is saving.
+        btnSubmitRepair.setEnabled(false);
+        btnSubmitRepair.setText("Submitting...");
 
-        // Save to Firestore
         firestore
                 .collection("appointments")
                 .add(repairData)
@@ -291,7 +332,6 @@ public class BookRepairActivity extends AppCompatActivity {
                     String appointmentId =
                             documentReference.getId();
 
-                    // Save appointment ID inside the document
                     documentReference.update(
                             "appointmentId",
                             appointmentId
@@ -308,12 +348,16 @@ public class BookRepairActivity extends AppCompatActivity {
 
                 .addOnFailureListener(e -> {
 
+                    btnSubmitRepair.setEnabled(true);
+                    btnSubmitRepair.setText(
+                            "Submit Repair Request"
+                    );
+
                     Toast.makeText(
                             BookRepairActivity.this,
                             "Failed: " + e.getMessage(),
                             Toast.LENGTH_LONG
                     ).show();
-
                 });
     }
 }
