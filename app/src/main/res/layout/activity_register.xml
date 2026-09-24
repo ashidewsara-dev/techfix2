@@ -1,103 +1,144 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/tech_background"
+    android:fillViewport="true"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="30dp">
+        android:paddingStart="28dp"
+        android:paddingEnd="28dp"
+        android:paddingTop="32dp"
+        android:paddingBottom="32dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="50dp"
+            android:layout_gravity="center_horizontal"
             android:text="TechFix"
-            android:textSize="38sp"
+            android:textColor="@color/tech_teal"
+            android:textSize="40sp"
             android:textStyle="bold" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="center_horizontal"
             android:layout_marginTop="10dp"
             android:text="Create Account"
-            android:textSize="22sp"
+            android:textColor="@color/tech_text"
+            android:textSize="24sp"
             android:textStyle="bold" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="25dp"
-            android:text="Register to use TechFix"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="28dp"
+            android:text="Register to get started with TechFix"
+            android:textColor="@color/tech_text_secondary"
             android:textSize="15sp" />
 
         <EditText
             android:id="@+id/editName"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
+            android:background="@drawable/bg_tech_input"
             android:hint="Full Name"
             android:inputType="textPersonName"
-            android:padding="15dp" />
+            android:singleLine="true"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/tech_text"
+            android:textColorHint="@color/tech_text_secondary"
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/editRegisterEmail"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_tech_input"
             android:hint="Email Address"
             android:inputType="textEmailAddress"
-            android:padding="15dp" />
+            android:singleLine="true"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/tech_text"
+            android:textColorHint="@color/tech_text_secondary"
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/editPhone"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_tech_input"
             android:hint="Phone Number"
             android:inputType="phone"
-            android:padding="15dp" />
+            android:singleLine="true"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/tech_text"
+            android:textColorHint="@color/tech_text_secondary"
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/editRegisterPassword"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_tech_input"
             android:hint="Password"
             android:inputType="textPassword"
-            android:padding="15dp" />
+            android:singleLine="true"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/tech_text"
+            android:textColorHint="@color/tech_text_secondary"
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/editConfirmPassword"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_tech_input"
             android:hint="Confirm Password"
             android:inputType="textPassword"
-            android:padding="15dp" />
+            android:singleLine="true"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/tech_text"
+            android:textColorHint="@color/tech_text_secondary"
+            android:textSize="16sp" />
 
         <Button
             android:id="@+id/btnRegister"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
-            android:text="CREATE ACCOUNT" />
-
+            android:layout_height="54dp"
+            android:layout_marginTop="26dp"
+            android:backgroundTint="@color/tech_teal"
+            android:text="CREATE ACCOUNT"
+            android:textAllCaps="false"
+            android:textColor="@color/tech_background"
+            android:textSize="16sp"
+            android:textStyle="bold" />
         <TextView
             android:id="@+id/txtLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="15dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="18dp"
             android:padding="10dp"
             android:text="Already have an account? Login"
+            android:textColor="@color/tech_teal"
             android:textSize="15sp" />
 
     </LinearLayout>
-
 </ScrollView>
