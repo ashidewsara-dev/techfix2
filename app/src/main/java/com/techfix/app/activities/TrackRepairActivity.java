@@ -1,6 +1,7 @@
 
 package com.techfix.app.activities;
 
+import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
@@ -10,20 +11,19 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.Source;
 import com.techfix.app.R;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-
-import androidx.appcompat.app.AlertDialog;
-
 
 public class TrackRepairActivity extends AppCompatActivity {
 
@@ -34,6 +34,9 @@ public class TrackRepairActivity extends AppCompatActivity {
 
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firestore;
+    private RepairDatabaseHelper databaseHelper;
+
+    private int latestRequestId = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +51,7 @@ public class TrackRepairActivity extends AppCompatActivity {
 
         firebaseAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
+        databaseHelper = new RepairDatabaseHelper(this);
 
         btnRefresh.setOnClickListener(v -> loadRepairs());
 
@@ -68,120 +72,195 @@ public class TrackRepairActivity extends AppCompatActivity {
         }
 
         String customerId = firebaseAuth.getCurrentUser().getUid();
+        int requestId = ++latestRequestId;
 
         progressBar.setVisibility(View.VISIBLE);
         btnRefresh.setEnabled(false);
         txtNoRepairs.setVisibility(View.GONE);
         repairContainer.removeAllViews();
 
+        // SERVER ensures this request does not silently return old
+        // Firestore cache data while we are testing SQLite offline mode.
         firestore.collection("appointments")
                 .whereEqualTo("customerId", customerId)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
+                .get(Source.SERVER)
+                .addOnSuccessListener(snapshots -> {
 
-                    progressBar.setVisibility(View.GONE);
-                    btnRefresh.setEnabled(true);
-
-                    if (queryDocumentSnapshots.isEmpty()) {
-                        txtNoRepairs.setText(
-                                "No repair appointments found.\n" +
-                                        "Book a repair to see its status here."
-                        );
-                        txtNoRepairs.setVisibility(View.VISIBLE);
+                    if (requestId != latestRequestId || isFinishing()) {
                         return;
                     }
 
-                    List<QueryDocumentSnapshot> repairs =
+                    List<RepairDatabaseHelper.CachedRepair> repairs =
                             new ArrayList<>();
 
-                    for (QueryDocumentSnapshot document
-                            : queryDocumentSnapshots) {
-                        repairs.add(document);
+                    for (QueryDocumentSnapshot document : snapshots) {
+
+                        RepairDatabaseHelper.CachedRepair repair =
+                                new RepairDatabaseHelper.CachedRepair();
+
+                        repair.appointmentId = document.getId();
+                        repair.customerId = customerId;
+                        repair.category =
+                                document.getString("deviceCategory");
+                        repair.brand = document.getString("brand");
+                        repair.model = document.getString("model");
+                        repair.problem = document.getString("problem");
+                        repair.branch = document.getString("branch");
+                        repair.preferredDate =
+                                document.getString("preferredDate");
+                        repair.status = document.getString("status");
+                        repair.paymentAmount =
+                                document.getDouble("paymentAmount");
+                        repair.paymentStatus =
+                                document.getString("paymentStatus");
+
+                        Long createdAt = document.getLong("createdAt");
+                        repair.createdAt =
+                                createdAt == null ? 0L : createdAt;
+
+                        repairs.add(repair);
                     }
 
-                    // Show the newest appointments first.
-                    Collections.sort(repairs, (first, second) -> {
+                    Collections.sort(
+                            repairs,
+                            (first, second) ->
+                                    Long.compare(
+                                            second.createdAt,
+                                            first.createdAt
+                                    )
+                    );
 
-                        Long firstTime = first.getLong("createdAt");
-                        Long secondTime = second.getLong("createdAt");
-
-                        long a = firstTime == null ? 0L : firstTime;
-                        long b = secondTime == null ? 0L : secondTime;
-
-                        return Long.compare(b, a);
-                    });
-
-                    for (QueryDocumentSnapshot document : repairs) {
-                        addRepairCard(document);
+                    // Save the latest successful server result to SQLite.
+                    try {
+                        databaseHelper.replaceCustomerRepairs(
+                                customerId,
+                                repairs
+                        );
+                    } catch (Exception e) {
+                        Toast.makeText(
+                                this,
+                                "Repairs loaded, but offline save failed: "
+                                        + e.getMessage(),
+                                Toast.LENGTH_LONG
+                        ).show();
                     }
+
+                    showRepairs(repairs, false);
                 })
                 .addOnFailureListener(e -> {
 
-                    progressBar.setVisibility(View.GONE);
-                    btnRefresh.setEnabled(true);
+                    if (requestId != latestRequestId || isFinishing()) {
+                        return;
+                    }
 
-                    txtNoRepairs.setText(
-                            "Unable to load your repairs.\n" +
-                                    "Tap Refresh to try again."
-                    );
-                    txtNoRepairs.setVisibility(View.VISIBLE);
+                    // Firestore is unavailable: read the last saved
+                    // repair details from the local SQLite database.
+                    try {
 
-                    Toast.makeText(
-                            this,
-                            "Failed to load repairs: " + e.getMessage(),
-                            Toast.LENGTH_LONG
-                    ).show();
+                        List<RepairDatabaseHelper.CachedRepair> savedRepairs =
+                                databaseHelper.getCustomerRepairs(customerId);
+
+                        showRepairs(savedRepairs, true);
+
+                    } catch (Exception databaseError) {
+
+                        progressBar.setVisibility(View.GONE);
+                        btnRefresh.setEnabled(true);
+
+                        txtNoRepairs.setText(
+                                "Could not load online or offline repairs."
+                        );
+
+                        txtNoRepairs.setVisibility(View.VISIBLE);
+
+                        Toast.makeText(
+                                this,
+                                databaseError.getMessage(),
+                                Toast.LENGTH_LONG
+                        ).show();
+                    }
                 });
     }
 
-    private void addRepairCard(QueryDocumentSnapshot document) {
+    private void showRepairs(
+            List<RepairDatabaseHelper.CachedRepair> repairs,
+            boolean offline
+    ) {
 
-        String category = safeValue(
-                document.getString("deviceCategory")
-        );
+        progressBar.setVisibility(View.GONE);
+        btnRefresh.setEnabled(true);
 
-        String brand = safeValue(
-                document.getString("brand")
-        );
+        repairContainer.removeAllViews();
+        txtNoRepairs.setVisibility(View.GONE);
 
-        String model = safeValue(
-                document.getString("model")
-        );
+        if (offline) {
+            TextView offlineNotice = new TextView(this);
 
-        String problem = safeValue(
-                document.getString("problem")
-        );
+            offlineNotice.setText(
+                    "OFFLINE MODE — Showing last saved repair details. "
+                            + "Statuses and payment information may be outdated."
+            );
 
-        String branch = safeValue(
-                document.getString("branch")
-        );
+            offlineNotice.setTextColor(
+                    getColor(R.color.tech_warning)
+            );
 
-        String date = safeValue(
-                document.getString("preferredDate")
-        );
+            offlineNotice.setTextSize(13);
+            offlineNotice.setPadding(
+                    dp(4), dp(4), dp(4), dp(16)
+            );
 
-        String status = safeValue(
-                document.getString("status")
-        );
+            repairContainer.addView(offlineNotice);
+        }
 
-        String appointmentId = document.getId();
+        if (repairs.isEmpty()) {
 
-        Double paymentAmount = document.getDouble("paymentAmount");
-        String paymentStatus = document.getString("paymentStatus");
+            txtNoRepairs.setText(
+                    offline
+                            ? "No repairs are saved on this device yet.\n"
+                              + "Connect to the internet and open Track Repair "
+                              + "once to save them."
+                            : "No repair appointments found.\n"
+                              + "Book a repair to see its status here."
+            );
+
+            txtNoRepairs.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        for (RepairDatabaseHelper.CachedRepair repair : repairs) {
+            addRepairCard(repair, offline);
+        }
+    }
+
+    private void addRepairCard(
+            RepairDatabaseHelper.CachedRepair repair,
+            boolean offline
+    ) {
+
+        String category = safeValue(repair.category);
+        String brand = safeValue(repair.brand);
+        String model = safeValue(repair.model);
+        String problem = safeValue(repair.problem);
+        String branch = safeValue(repair.branch);
+        String date = safeValue(repair.preferredDate);
+        String status = safeValue(repair.status);
+        String appointmentId = repair.appointmentId;
+
+        Double paymentAmount = repair.paymentAmount;
+        String paymentStatus = repair.paymentStatus;
 
         if (paymentStatus == null || paymentStatus.trim().isEmpty()) {
             paymentStatus = "Unpaid";
         }
 
-
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
+
         card.setPadding(
-                dp(18),
-                dp(18),
-                dp(18),
-                dp(18)
+                dp(18), dp(18), dp(18), dp(18)
         );
+
         card.setBackgroundResource(R.drawable.bg_tech_card);
 
         LinearLayout.LayoutParams cardParams =
@@ -195,9 +274,7 @@ public class TrackRepairActivity extends AppCompatActivity {
 
         TextView deviceTitle = new TextView(this);
         deviceTitle.setText(brand + " " + model);
-        deviceTitle.setTextColor(
-                getColor(R.color.tech_text)
-        );
+        deviceTitle.setTextColor(getColor(R.color.tech_text));
         deviceTitle.setTextSize(20);
         deviceTitle.setTypeface(null, Typeface.BOLD);
         card.addView(deviceTitle);
@@ -212,9 +289,11 @@ public class TrackRepairActivity extends AppCompatActivity {
         card.addView(categoryView);
 
         TextView statusView = new TextView(this);
+
         statusView.setText(
                 "STATUS  •  " + status.toUpperCase(Locale.ROOT)
         );
+
         statusView.setTextColor(statusColor(status));
         statusView.setTextSize(14);
         statusView.setTypeface(null, Typeface.BOLD);
@@ -234,7 +313,6 @@ public class TrackRepairActivity extends AppCompatActivity {
         idView.setPadding(0, dp(12), 0, 0);
         card.addView(idView);
 
-
         TextView paymentTitle = new TextView(this);
         paymentTitle.setText("PAYMENT");
         paymentTitle.setTextSize(13);
@@ -245,7 +323,11 @@ public class TrackRepairActivity extends AppCompatActivity {
 
         if (paymentAmount == null || paymentAmount <= 0) {
 
-            addDetail(card, "Repair amount", "Awaiting final amount from admin");
+            addDetail(
+                    card,
+                    "Repair amount",
+                    "Awaiting final amount from admin"
+            );
 
         } else {
 
@@ -258,14 +340,21 @@ public class TrackRepairActivity extends AppCompatActivity {
             addDetail(card, "Repair amount", formattedAmount);
             addDetail(card, "Payment status", paymentStatus);
 
-            if (!"Paid (Demo)".equalsIgnoreCase(paymentStatus)) {
+            // Payment is disabled while viewing offline data.
+            if (!offline
+                    && !"Paid (Demo)".equalsIgnoreCase(paymentStatus)
+                    && !"Paid".equalsIgnoreCase(paymentStatus)) {
 
                 Button btnPay = new Button(this);
                 btnPay.setText("Pay Now (Demo)");
                 btnPay.setAllCaps(false);
-                btnPay.setTextColor(getColor(R.color.tech_background));
+
+                btnPay.setTextColor(
+                        getColor(R.color.tech_background)
+                );
+
                 btnPay.setBackgroundTintList(
-                        android.content.res.ColorStateList.valueOf(
+                        ColorStateList.valueOf(
                                 getColor(R.color.tech_teal)
                         )
                 );
@@ -280,9 +369,7 @@ public class TrackRepairActivity extends AppCompatActivity {
                 );
             }
         }
-
     }
-
 
     private void showDemoPaymentDialog(
             String appointmentId,
@@ -298,8 +385,11 @@ public class TrackRepairActivity extends AppCompatActivity {
                                 + "No real money will be charged."
                 )
                 .setNegativeButton("Cancel", null)
-                .setPositiveButton("Confirm Demo Payment",
-                        (dialog, which) -> completeDemoPayment(appointmentId))
+                .setPositiveButton(
+                        "Confirm Demo Payment",
+                        (dialog, which) ->
+                                completeDemoPayment(appointmentId)
+                )
                 .show();
     }
 
@@ -321,7 +411,7 @@ public class TrackRepairActivity extends AppCompatActivity {
 
         firestore.collection("appointments")
                 .document(appointmentId)
-                .get()
+                .get(Source.SERVER)
                 .addOnSuccessListener(document -> {
 
                     if (!document.exists()) {
@@ -335,15 +425,21 @@ public class TrackRepairActivity extends AppCompatActivity {
                         return;
                     }
 
-                    String ownerId = document.getString("customerId");
-                    Double amount = document.getDouble("paymentAmount");
-                    String status = document.getString("paymentStatus");
+                    String ownerId =
+                            document.getString("customerId");
+
+                    Double amount =
+                            document.getDouble("paymentAmount");
+
+                    String status =
+                            document.getString("paymentStatus");
 
                     if (!currentCustomerId.equals(ownerId)) {
 
                         Toast.makeText(
                                 this,
-                                "This appointment does not belong to your account",
+                                "This appointment does not belong "
+                                        + "to your account",
                                 Toast.LENGTH_LONG
                         ).show();
 
@@ -362,7 +458,8 @@ public class TrackRepairActivity extends AppCompatActivity {
                         return;
                     }
 
-                    if ("Paid ".equalsIgnoreCase(status)) {
+                    if ("Paid (Demo)".equalsIgnoreCase(status)
+                            || "Paid".equalsIgnoreCase(status)) {
 
                         Toast.makeText(
                                 this,
@@ -376,19 +473,21 @@ public class TrackRepairActivity extends AppCompatActivity {
 
                     firestore.collection("appointments")
                             .document(appointmentId)
-                            .update("paymentStatus", "Paid")
+                            .update(
+                                    "paymentStatus",
+                                    "Paid (Demo)"
+                            )
                             .addOnSuccessListener(unused -> {
 
                                 Toast.makeText(
                                         this,
-                                        "Payment completed",
+                                        "Demo payment completed",
                                         Toast.LENGTH_SHORT
                                 ).show();
 
                                 loadRepairs();
                             })
                             .addOnFailureListener(e ->
-
                                     Toast.makeText(
                                             this,
                                             "Payment update failed: "
@@ -398,7 +497,6 @@ public class TrackRepairActivity extends AppCompatActivity {
                             );
                 })
                 .addOnFailureListener(e ->
-
                         Toast.makeText(
                                 this,
                                 "Could not verify appointment: "
@@ -407,7 +505,6 @@ public class TrackRepairActivity extends AppCompatActivity {
                         ).show()
                 );
     }
-
 
     private void addDetail(
             LinearLayout card,
@@ -422,7 +519,6 @@ public class TrackRepairActivity extends AppCompatActivity {
         );
         detailView.setTextSize(14);
         detailView.setPadding(0, dp(5), 0, dp(5));
-
         card.addView(detailView);
     }
 
@@ -459,7 +555,14 @@ public class TrackRepairActivity extends AppCompatActivity {
     private int dp(int value) {
 
         return Math.round(
-                value * getResources().getDisplayMetrics().density
+                value * getResources()
+                        .getDisplayMetrics().density
         );
+    }
+
+    @Override
+    protected void onDestroy() {
+        databaseHelper.close();
+        super.onDestroy();
     }
 }
