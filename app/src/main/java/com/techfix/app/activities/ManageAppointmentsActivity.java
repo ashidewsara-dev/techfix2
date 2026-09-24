@@ -1,9 +1,12 @@
+
 package com.techfix.app.activities;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -17,13 +20,8 @@ import com.techfix.app.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-
-
-import android.text.InputType;
-import android.widget.EditText;
 import java.util.Locale;
-
+import java.util.Map;
 
 public class ManageAppointmentsActivity extends AppCompatActivity {
 
@@ -77,7 +75,10 @@ public class ManageAppointmentsActivity extends AppCompatActivity {
         text.setTextColor(color);
 
         if (bold) {
-            text.setTypeface(null, android.graphics.Typeface.BOLD);
+            text.setTypeface(
+                    null,
+                    android.graphics.Typeface.BOLD
+            );
         }
 
         return text;
@@ -89,9 +90,11 @@ public class ManageAppointmentsActivity extends AppCompatActivity {
         button.setText(label);
         button.setAllCaps(false);
         button.setTextSize(14);
+
         button.setTextColor(
                 getResources().getColor(R.color.tech_background)
         );
+
         button.setBackgroundTintList(
                 getResources().getColorStateList(R.color.tech_teal)
         );
@@ -121,30 +124,56 @@ public class ManageAppointmentsActivity extends AppCompatActivity {
 
                         String appointmentId = document.getId();
 
-                        String category = document.getString("deviceCategory");
-                        String brand = document.getString("brand");
-                        String model = document.getString("model");
-                        String problem = document.getString("problem");
-                        String branch = document.getString("branch");
-                        String date = document.getString("preferredDate");
-                        String status = document.getString("status");
-                        String technicianId = document.getString("technicianId");
+                        String category =
+                                document.getString("deviceCategory");
 
-                        Double paymentAmount = document.getDouble("paymentAmount");
-                        String paymentStatus = document.getString("paymentStatus");
+                        String brand =
+                                document.getString("brand");
 
-                        if (paymentStatus == null || paymentStatus.trim().isEmpty()) {
+                        String model =
+                                document.getString("model");
+
+                        String problem =
+                                document.getString("problem");
+
+                        String branch =
+                                document.getString("branch");
+
+                        String date =
+                                document.getString("preferredDate");
+
+                        String status =
+                                document.getString("status");
+
+                        String technicianId =
+                                document.getString("technicianId");
+
+                        Double paymentAmount =
+                                document.getDouble("paymentAmount");
+
+                        String paymentStatus =
+                                document.getString("paymentStatus");
+
+                        if (paymentStatus == null
+                                || paymentStatus.trim().isEmpty()) {
                             paymentStatus = "Unpaid";
                         }
 
+                        // REPAIR CARD
 
-                        // DARK REPAIR CARD
                         LinearLayout card = new LinearLayout(this);
                         card.setOrientation(LinearLayout.VERTICAL);
+
                         card.setPadding(
-                                dp(18), dp(18), dp(18), dp(18)
+                                dp(18),
+                                dp(18),
+                                dp(18),
+                                dp(18)
                         );
-                        card.setBackgroundResource(R.drawable.bg_tech_card);
+
+                        card.setBackgroundResource(
+                                R.drawable.bg_tech_card
+                        );
 
                         LinearLayout.LayoutParams cardParams =
                                 new LinearLayout.LayoutParams(
@@ -156,6 +185,7 @@ public class ManageAppointmentsActivity extends AppCompatActivity {
                         card.setLayoutParams(cardParams);
 
                         // DEVICE TITLE
+
                         TextView deviceTitle = createText(
                                 brand + " " + model,
                                 20,
@@ -166,8 +196,11 @@ public class ManageAppointmentsActivity extends AppCompatActivity {
                         card.addView(deviceTitle);
 
                         // CATEGORY
+
                         TextView categoryText = createText(
-                                category == null ? "Repair Request" : category,
+                                category == null
+                                        ? "Repair Request"
+                                        : category,
                                 13,
                                 getResources().getColor(
                                         R.color.tech_text_secondary
@@ -175,36 +208,54 @@ public class ManageAppointmentsActivity extends AppCompatActivity {
                                 false
                         );
 
-                        categoryText.setPadding(0, dp(4), 0, dp(12));
+                        categoryText.setPadding(
+                                0,
+                                dp(4),
+                                0,
+                                dp(12)
+                        );
+
                         card.addView(categoryText);
 
                         // STATUS BADGE
+
                         TextView statusBadge = createText(
-                                "●  " + (status == null ? "Pending" : status),
+                                "●  " + (
+                                        status == null
+                                                ? "Pending"
+                                                : status
+                                ),
                                 14,
                                 getResources().getColor(R.color.tech_warning),
                                 true
                         );
 
                         if ("Completed".equalsIgnoreCase(status)) {
+
                             statusBadge.setTextColor(
                                     getResources().getColor(R.color.tech_teal)
                             );
+
                         } else if ("In Progress".equalsIgnoreCase(status)) {
+
                             statusBadge.setTextColor(0xFF79B8FF);
                         }
 
                         card.addView(statusBadge);
 
                         // REPAIR DETAILS
+
                         String details =
                                 "\nProblem: " + problem
                                         + "\nBranch: " + branch
                                         + "\nPreferred Date: " + date
                                         + "\nTechnician: "
-                                        + ((technicianId == null
-                                        || technicianId.isEmpty())
-                                        ? "Not assigned" : "Assigned");
+                                        + (
+                                        technicianId == null
+                                                || technicianId.isEmpty()
+                                                ? "Not assigned"
+                                                : "Assigned"
+                                );
 
                         TextView detailsView = createText(
                                 details,
@@ -218,18 +269,33 @@ public class ManageAppointmentsActivity extends AppCompatActivity {
                         detailsView.setLineSpacing(dp(4), 1f);
                         card.addView(detailsView);
 
-                        // BUTTONS
-                        Button btnPending = createButton("Set Pending");
-                        Button btnInProgress = createButton("Set In Progress");
-                        Button btnCompleted = createButton("Set Completed");
-                        Button btnAssign = createButton("Assign Technician");
+                        // ACTION BUTTONS
 
+                        Button btnPending =
+                                createButton("Set Pending");
 
-                        Button btnSetPayment = createButton("Set Repair Amount");
+                        Button btnInProgress =
+                                createButton("Set In Progress");
 
-                        String amountText = paymentAmount == null
-                                ? "Not set"
-                                : String.format(Locale.US, "LKR %,.2f", paymentAmount);
+                        Button btnCompleted =
+                                createButton("Set Completed");
+
+                        Button btnAssign =
+                                createButton("Assign Technician");
+
+                        Button btnSetPayment =
+                                createButton("Set Repair Amount");
+
+                        // PAYMENT DETAILS
+
+                        String amountText =
+                                paymentAmount == null
+                                        ? "Not set"
+                                        : String.format(
+                                        Locale.US,
+                                        "LKR %,.2f",
+                                        paymentAmount
+                                );
 
                         TextView paymentView = createText(
                                 "\nPayment amount: " + amountText
@@ -239,46 +305,61 @@ public class ManageAppointmentsActivity extends AppCompatActivity {
                                 false
                         );
 
+                        // BUTTON ACTIONS
 
                         btnPending.setOnClickListener(v ->
-                                updateStatus(appointmentId, "Pending")
+                                updateStatus(
+                                        appointmentId,
+                                        "Pending"
+                                )
                         );
 
                         btnInProgress.setOnClickListener(v ->
-                                updateStatus(appointmentId, "In Progress")
+                                updateStatus(
+                                        appointmentId,
+                                        "In Progress"
+                                )
                         );
 
                         btnCompleted.setOnClickListener(v ->
-                                updateStatus(appointmentId, "Completed")
+                                updateStatus(
+                                        appointmentId,
+                                        "Completed"
+                                )
                         );
 
                         btnAssign.setOnClickListener(v ->
-                                showTechnicianPicker(appointmentId, branch)
+                                showTechnicianPicker(
+                                        appointmentId,
+                                        branch
+                                )
                         );
+
+                        btnSetPayment.setOnClickListener(v ->
+                                showPaymentAmountDialog(appointmentId)
+                        );
+
+                        // ADD VIEWS TO CARD
 
                         card.addView(btnPending);
                         card.addView(btnInProgress);
                         card.addView(btnCompleted);
                         card.addView(btnAssign);
 
-
                         card.addView(paymentView);
                         card.addView(btnSetPayment);
-
-                        btnSetPayment.setOnClickListener(v ->
-                                showPaymentAmountDialog(appointmentId)
-                        );
-
 
                         adminAppointmentsContainer.addView(card);
                     }
                 })
                 .addOnFailureListener(e -> {
+
                     adminAppointmentsProgressBar.setVisibility(View.GONE);
 
                     Toast.makeText(
                             this,
-                            "Failed to load appointments: " + e.getMessage(),
+                            "Failed to load appointments: "
+                                    + e.getMessage(),
                             Toast.LENGTH_LONG
                     ).show();
                 });
@@ -286,96 +367,107 @@ public class ManageAppointmentsActivity extends AppCompatActivity {
 
     private void showPaymentAmountDialog(String appointmentId) {
 
+        EditText amountInput = new EditText(this);
+        amountInput.setHint("Amount in LKR");
 
-            EditText amountInput = new EditText(this);
-            amountInput.setHint("Amount in LKR");
-            amountInput.setInputType(
-                    InputType.TYPE_CLASS_NUMBER
-                            | InputType.TYPE_NUMBER_FLAG_DECIMAL
-            );
+        amountInput.setInputType(
+                InputType.TYPE_CLASS_NUMBER
+                        | InputType.TYPE_NUMBER_FLAG_DECIMAL
+        );
 
-            LinearLayout container = new LinearLayout(this);
-            container.setPadding(dp(20), dp(8), dp(20), 0);
-            container.addView(amountInput);
+        LinearLayout container = new LinearLayout(this);
+        container.setPadding(dp(20), dp(8), dp(20), 0);
+        container.addView(amountInput);
 
-            AlertDialog dialog = new AlertDialog.Builder(this)
-                    .setTitle("Set Repair Amount")
-                    .setMessage(
-                            "Enter the final repair amount. " +
-                                    "This is for demo payments only."
-                    )
-                    .setView(container)
-                    .setNegativeButton("Cancel", null)
-                    .setPositiveButton("Save", null)
-                    .create();
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Set Repair Amount")
+                .setMessage(
+                        "Enter the final repair amount. "
+                                + "This is for demo payments only."
+                )
+                .setView(container)
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Save", null)
+                .create();
 
-            dialog.setOnShowListener(unused -> {
+        dialog.setOnShowListener(unused -> {
 
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                        .setOnClickListener(v -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                    .setOnClickListener(v -> {
 
-                            String input = amountInput.getText()
-                                    .toString().trim();
+                        String input = amountInput.getText()
+                                .toString().trim();
 
-                            double amount;
+                        double amount;
 
-                            try {
-                                amount = Double.parseDouble(input);
-                            } catch (NumberFormatException e) {
-                                amountInput.setError("Enter a valid amount");
-                                return;
-                            }
+                        try {
+                            amount = Double.parseDouble(input);
 
-                            if (!Double.isFinite(amount) || amount <= 0) {
-                                amountInput.setError(
-                                        "Enter an amount greater than zero"
-                                );
-                                return;
-                            }
+                        } catch (NumberFormatException e) {
 
-                            dialog.getButton(
-                                    AlertDialog.BUTTON_POSITIVE
-                            ).setEnabled(false);
+                            amountInput.setError(
+                                    "Enter a valid amount"
+                            );
+                            return;
+                        }
 
-                            Map<String, Object> updates = new HashMap<>();
-                            updates.put("paymentAmount", amount);
-                            updates.put("paymentStatus", "Unpaid");
+                        if (!Double.isFinite(amount)
+                                || amount <= 0) {
 
-                            firestore.collection("appointments")
-                                    .document(appointmentId)
-                                    .update(updates)
-                                    .addOnSuccessListener(result -> {
+                            amountInput.setError(
+                                    "Enter an amount greater than zero"
+                            );
+                            return;
+                        }
 
-                                        dialog.dismiss();
+                        dialog.getButton(
+                                AlertDialog.BUTTON_POSITIVE
+                        ).setEnabled(false);
 
-                                        Toast.makeText(
-                                                this,
-                                                "Repair amount saved",
-                                                Toast.LENGTH_SHORT
-                                        ).show();
+                        Map<String, Object> updates =
+                                new HashMap<>();
 
-                                        loadAppointments();
-                                    })
-                                    .addOnFailureListener(e -> {
+                        updates.put("paymentAmount", amount);
+                        updates.put("paymentStatus", "Unpaid");
 
-                                        dialog.getButton(
-                                                AlertDialog.BUTTON_POSITIVE
-                                        ).setEnabled(true);
+                        firestore.collection("appointments")
+                                .document(appointmentId)
+                                .update(updates)
+                                .addOnSuccessListener(result -> {
 
-                                        Toast.makeText(
-                                                this,
-                                                "Could not save amount: "
-                                                        + e.getMessage(),
-                                                Toast.LENGTH_LONG
-                                        ).show();
-                                    });
-                        });
-            });
+                                    dialog.dismiss();
 
-            dialog.show();
-        }
+                                    Toast.makeText(
+                                            this,
+                                            "Repair amount saved",
+                                            Toast.LENGTH_SHORT
+                                    ).show();
 
-    private void updateStatus(String appointmentId, String newStatus) {
+                                    loadAppointments();
+                                })
+                                .addOnFailureListener(e -> {
+
+                                    dialog.getButton(
+                                            AlertDialog.BUTTON_POSITIVE
+                                    ).setEnabled(true);
+
+                                    Toast.makeText(
+                                            this,
+                                            "Could not save amount: "
+                                                    + e.getMessage(),
+                                            Toast.LENGTH_LONG
+                                    ).show();
+                                });
+                    });
+        });
+
+        dialog.show();
+    }
+
+    private void updateStatus(
+            String appointmentId,
+            String newStatus
+    ) {
 
         firestore.collection("appointments")
                 .document(appointmentId)
@@ -391,6 +483,7 @@ public class ManageAppointmentsActivity extends AppCompatActivity {
                     loadAppointments();
                 })
                 .addOnFailureListener(e ->
+
                         Toast.makeText(
                                 this,
                                 "Update failed: " + e.getMessage(),
@@ -409,22 +502,34 @@ public class ManageAppointmentsActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(snapshots -> {
 
-                    ArrayList<String> technicianNames = new ArrayList<>();
-                    ArrayList<String> technicianIds = new ArrayList<>();
+                    ArrayList<String> technicianNames =
+                            new ArrayList<>();
+
+                    ArrayList<String> technicianIds =
+                            new ArrayList<>();
+
+                    // ONLY SHOW TECHNICIANS FROM THE APPOINTMENT BRANCH
 
                     for (QueryDocumentSnapshot document : snapshots) {
 
-                        String branch = document.getString("branch");
+                        String branch =
+                                document.getString("branch");
 
                         if (appointmentBranch == null
-                                || !appointmentBranch.equalsIgnoreCase(branch)) {
+                                || branch == null
+                                || !appointmentBranch.trim()
+                                .equalsIgnoreCase(branch.trim())) {
+
                             continue;
                         }
 
-                        String name = document.getString("name");
+                        String name =
+                                document.getString("name");
 
                         technicianNames.add(
-                                name == null ? "Unnamed Technician" : name
+                                name == null || name.trim().isEmpty()
+                                        ? "Unnamed Technician"
+                                        : name
                         );
 
                         technicianIds.add(document.getId());
@@ -434,7 +539,8 @@ public class ManageAppointmentsActivity extends AppCompatActivity {
 
                         Toast.makeText(
                                 this,
-                                "No technicians found for " + appointmentBranch,
+                                "No technicians found for "
+                                        + appointmentBranch,
                                 Toast.LENGTH_LONG
                         ).show();
 
@@ -444,34 +550,89 @@ public class ManageAppointmentsActivity extends AppCompatActivity {
                     new AlertDialog.Builder(this)
                             .setTitle("Assign Technician")
                             .setItems(
-                                    technicianNames.toArray(new String[0]),
+                                    technicianNames.toArray(
+                                            new String[0]
+                                    ),
                                     (dialog, which) -> {
 
                                         String selectedId =
                                                 technicianIds.get(which);
 
-                                        Map<String, Object> updates =
-                                                new HashMap<>();
+                                        String selectedName =
+                                                technicianNames.get(which);
 
-                                        updates.put("technicianId", selectedId);
+                                        // CHECK CURRENT TECHNICIAN WORKLOAD
 
                                         firestore.collection("appointments")
-                                                .document(appointmentId)
-                                                .update(updates)
-                                                .addOnSuccessListener(unused -> {
+                                                .whereEqualTo(
+                                                        "technicianId",
+                                                        selectedId
+                                                )
+                                                .get()
+                                                .addOnSuccessListener(
+                                                        assignedRepairs -> {
 
-                                                    Toast.makeText(
-                                                            this,
-                                                            "Technician assigned successfully",
-                                                            Toast.LENGTH_SHORT
-                                                    ).show();
+                                                            int unfinishedCount = 0;
 
-                                                    loadAppointments();
-                                                })
+                                                            for (QueryDocumentSnapshot repair
+                                                                    : assignedRepairs) {
+
+                                                                // Do not count this appointment
+                                                                // if it is already assigned
+                                                                // to the selected technician.
+
+                                                                if (repair.getId()
+                                                                        .equals(appointmentId)) {
+                                                                    continue;
+                                                                }
+
+                                                                String repairStatus =
+                                                                        repair.getString(
+                                                                                "status"
+                                                                        );
+
+                                                                if (!"Completed"
+                                                                        .equalsIgnoreCase(
+                                                                                repairStatus
+                                                                        )) {
+                                                                    unfinishedCount++;
+                                                                }
+                                                            }
+
+                                                            String message =
+                                                                    selectedName
+                                                                            + " has "
+                                                                            + unfinishedCount
+                                                                            + " unfinished repair(s).\n\n"
+                                                                            + "Assign this appointment anyway?";
+
+                                                            new AlertDialog.Builder(this)
+                                                                    .setTitle(
+                                                                            "Confirm Technician Assignment"
+                                                                    )
+                                                                    .setMessage(message)
+                                                                    .setNegativeButton(
+                                                                            "Cancel",
+                                                                            null
+                                                                    )
+                                                                    .setPositiveButton(
+                                                                            "Assign",
+                                                                            (confirmDialog, confirmWhich) ->
+
+                                                                                    verifyAndAssignTechnician(
+                                                                                            appointmentId,
+                                                                                            appointmentBranch,
+                                                                                            selectedId
+                                                                                    )
+                                                                    )
+                                                                    .show();
+                                                        }
+                                                )
                                                 .addOnFailureListener(e ->
+
                                                         Toast.makeText(
                                                                 this,
-                                                                "Assignment failed: "
+                                                                "Could not check technician workload: "
                                                                         + e.getMessage(),
                                                                 Toast.LENGTH_LONG
                                                         ).show()
@@ -482,6 +643,7 @@ public class ManageAppointmentsActivity extends AppCompatActivity {
                             .show();
                 })
                 .addOnFailureListener(e ->
+
                         Toast.makeText(
                                 this,
                                 "Failed to load technicians: "
@@ -490,5 +652,74 @@ public class ManageAppointmentsActivity extends AppCompatActivity {
                         ).show()
                 );
     }
-}
 
+    private void verifyAndAssignTechnician(
+            String appointmentId,
+            String appointmentBranch,
+            String selectedId
+    ) {
+
+        // CHECK ROLE AND BRANCH AGAIN BEFORE SAVING
+
+        firestore.collection("users")
+                .document(selectedId)
+                .get()
+                .addOnSuccessListener(technician -> {
+
+                    String currentBranch =
+                            technician.getString("branch");
+
+                    String currentRole =
+                            technician.getString("role");
+
+                    if (!technician.exists()
+                            || !"technician".equalsIgnoreCase(currentRole)
+                            || appointmentBranch == null
+                            || currentBranch == null
+                            || !appointmentBranch.trim()
+                            .equalsIgnoreCase(currentBranch.trim())) {
+
+                        Toast.makeText(
+                                this,
+                                "Technician is no longer assigned "
+                                        + "to this branch.",
+                                Toast.LENGTH_LONG
+                        ).show();
+
+                        return;
+                    }
+
+                    firestore.collection("appointments")
+                            .document(appointmentId)
+                            .update("technicianId", selectedId)
+                            .addOnSuccessListener(unused -> {
+
+                                Toast.makeText(
+                                        this,
+                                        "Technician assigned successfully",
+                                        Toast.LENGTH_SHORT
+                                ).show();
+
+                                loadAppointments();
+                            })
+                            .addOnFailureListener(e ->
+
+                                    Toast.makeText(
+                                            this,
+                                            "Assignment failed: "
+                                                    + e.getMessage(),
+                                            Toast.LENGTH_LONG
+                                    ).show()
+                            );
+                })
+                .addOnFailureListener(e ->
+
+                        Toast.makeText(
+                                this,
+                                "Could not verify technician: "
+                                        + e.getMessage(),
+                                Toast.LENGTH_LONG
+                        ).show()
+                );
+    }
+}

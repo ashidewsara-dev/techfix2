@@ -2,10 +2,14 @@
 package com.techfix.app.activities;
 
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -75,9 +79,11 @@ public class AssignedRepairsActivity extends AppCompatActivity {
         if (currentUser == null) {
 
             txtAssignedRepairCount.setText("Your Repairs");
+
             txtNoAssignedRepairs.setText(
                     "Please log in to view your assigned repairs."
             );
+
             txtNoAssignedRepairs.setVisibility(View.VISIBLE);
             assignedRepairsContainer.removeAllViews();
 
@@ -112,8 +118,8 @@ public class AssignedRepairsActivity extends AppCompatActivity {
                         txtNoAssignedRepairs.setText(
                                 "No repairs assigned to you yet."
                         );
-                        txtNoAssignedRepairs.setVisibility(View.VISIBLE);
 
+                        txtNoAssignedRepairs.setVisibility(View.VISIBLE);
                         return;
                     }
 
@@ -135,6 +141,7 @@ public class AssignedRepairsActivity extends AppCompatActivity {
                     txtNoAssignedRepairs.setText(
                             "Could not load repairs. Tap Refresh."
                     );
+
                     txtNoAssignedRepairs.setVisibility(View.VISIBLE);
 
                     showError("Could not load assigned repairs", e);
@@ -147,14 +154,21 @@ public class AssignedRepairsActivity extends AppCompatActivity {
 
         String brand = safeValue(document.getString("brand"));
         String model = safeValue(document.getString("model"));
+
         String category = safeValue(
                 document.getString("deviceCategory")
         );
+
         String problem = safeValue(document.getString("problem"));
         String branch = safeValue(document.getString("branch"));
+
         String date = safeValue(
                 document.getString("preferredDate")
         );
+
+        // The compressed photo saved by BookRepairActivity.
+        String imageBase64 =
+                document.getString("deviceImageBase64");
 
         String status = document.getString("status");
 
@@ -166,7 +180,11 @@ public class AssignedRepairsActivity extends AppCompatActivity {
 
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
-        card.setPadding(dp(18), dp(18), dp(18), dp(18));
+
+        card.setPadding(
+                dp(18), dp(18), dp(18), dp(18)
+        );
+
         card.setBackgroundResource(R.drawable.bg_tech_card);
 
         LinearLayout.LayoutParams cardParams =
@@ -176,9 +194,13 @@ public class AssignedRepairsActivity extends AppCompatActivity {
                 );
 
         cardParams.bottomMargin = dp(14);
+
         assignedRepairsContainer.addView(card, cardParams);
 
+        // DEVICE TITLE
+
         TextView deviceTitle = new TextView(this);
+
         deviceTitle.setText(brand + " " + model);
         deviceTitle.setTextSize(19);
         deviceTitle.setTypeface(null, Typeface.BOLD);
@@ -186,20 +208,130 @@ public class AssignedRepairsActivity extends AppCompatActivity {
 
         card.addView(deviceTitle);
 
+        // REPAIR DETAILS
+
         addDetail(card, "Category", category);
         addDetail(card, "Problem", problem);
         addDetail(card, "Branch", branch);
         addDetail(card, "Preferred date", date);
 
+        // DEVICE PHOTO
+
+        TextView photoTitle = new TextView(this);
+        photoTitle.setText("Device Photo");
+        photoTitle.setTextSize(15);
+        photoTitle.setTypeface(null, Typeface.BOLD);
+        photoTitle.setTextColor(getColor(R.color.tech_text));
+        photoTitle.setPadding(0, dp(14), 0, dp(8));
+
+        card.addView(photoTitle);
+
+        if (imageBase64 == null || imageBase64.trim().isEmpty()) {
+
+            addDetail(
+                    card,
+                    "Photo",
+                    "No device photo attached to this booking"
+            );
+
+        } else {
+
+            try {
+
+                byte[] imageBytes = Base64.decode(
+                        imageBase64,
+                        Base64.DEFAULT
+                );
+
+                Bitmap deviceBitmap =
+                        BitmapFactory.decodeByteArray(
+                                imageBytes,
+                                0,
+                                imageBytes.length
+                        );
+
+                if (deviceBitmap == null) {
+                    throw new IllegalArgumentException(
+                            "Image could not be decoded"
+                    );
+                }
+
+                ImageView deviceImage = new ImageView(this);
+
+                LinearLayout.LayoutParams imageParams =
+                        new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                dp(190)
+                        );
+
+                deviceImage.setLayoutParams(imageParams);
+                deviceImage.setScaleType(
+                        ImageView.ScaleType.FIT_CENTER
+                );
+
+                deviceImage.setImageBitmap(deviceBitmap);
+
+                card.addView(deviceImage);
+
+                // Tap the photo to view it in a larger dialog.
+                deviceImage.setOnClickListener(v -> {
+
+                    ImageView largeImage = new ImageView(this);
+
+                    largeImage.setImageBitmap(deviceBitmap);
+                    largeImage.setScaleType(
+                            ImageView.ScaleType.FIT_CENTER
+                    );
+
+                    LinearLayout imageContainer =
+                            new LinearLayout(this);
+
+                    imageContainer.setPadding(
+                            dp(12), dp(12), dp(12), dp(12)
+                    );
+
+                    imageContainer.addView(
+                            largeImage,
+                            new LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.MATCH_PARENT,
+                                    dp(320)
+                            )
+                    );
+
+                    new AlertDialog.Builder(this)
+                            .setTitle("Device Photo")
+                            .setView(imageContainer)
+                            .setPositiveButton("Close", null)
+                            .show();
+                });
+
+            } catch (Exception e) {
+
+                addDetail(
+                        card,
+                        "Photo",
+                        "Could not display the attached photo"
+                );
+            }
+        }
+
+        // REPAIR STATUS
+
         TextView statusText = new TextView(this);
+
         statusText.setText("●  " + currentStatus);
         statusText.setTextSize(15);
         statusText.setTypeface(null, Typeface.BOLD);
-        statusText.setPadding(0, dp(12), 0, dp(12));
+
+        statusText.setPadding(
+                0, dp(12), 0, dp(12)
+        );
 
         if ("Completed".equalsIgnoreCase(currentStatus)) {
 
-            statusText.setTextColor(getColor(R.color.tech_teal));
+            statusText.setTextColor(
+                    getColor(R.color.tech_teal)
+            );
 
         } else if ("In Progress".equalsIgnoreCase(currentStatus)) {
 
@@ -207,14 +339,20 @@ public class AssignedRepairsActivity extends AppCompatActivity {
 
         } else {
 
-            statusText.setTextColor(getColor(R.color.tech_warning));
+            statusText.setTextColor(
+                    getColor(R.color.tech_warning)
+            );
         }
 
         card.addView(statusText);
 
+        // UPDATE STATUS BUTTON
+
         Button btnUpdateStatus = new Button(this);
+
         btnUpdateStatus.setText("Update Repair Status");
         btnUpdateStatus.setAllCaps(false);
+
         btnUpdateStatus.setTextColor(
                 getColor(R.color.tech_background)
         );
@@ -228,7 +366,10 @@ public class AssignedRepairsActivity extends AppCompatActivity {
         card.addView(btnUpdateStatus);
 
         btnUpdateStatus.setOnClickListener(v ->
-                showStatusPicker(appointmentId, currentStatus)
+                showStatusPicker(
+                        appointmentId,
+                        currentStatus
+                )
         );
     }
 
@@ -252,7 +393,8 @@ public class AssignedRepairsActivity extends AppCompatActivity {
 
                             dialog.dismiss();
 
-                            String selectedStatus = statuses[which];
+                            String selectedStatus =
+                                    statuses[which];
 
                             if (selectedStatus.equalsIgnoreCase(
                                     currentStatus
@@ -290,7 +432,8 @@ public class AssignedRepairsActivity extends AppCompatActivity {
             String newStatus
     ) {
 
-        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        FirebaseUser currentUser =
+                firebaseAuth.getCurrentUser();
 
         if (currentUser == null) {
 
@@ -371,11 +514,14 @@ public class AssignedRepairsActivity extends AppCompatActivity {
     ) {
 
         TextView detail = new TextView(this);
+
         detail.setText(label + ": " + value);
         detail.setTextSize(14);
+
         detail.setTextColor(
                 getColor(R.color.tech_text_secondary)
         );
+
         detail.setPadding(0, dp(7), 0, 0);
 
         card.addView(detail);

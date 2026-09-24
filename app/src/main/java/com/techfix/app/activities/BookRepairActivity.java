@@ -32,6 +32,13 @@ import java.util.Map;
 import android.widget.AdapterView;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 public class BookRepairActivity extends AppCompatActivity {
 
     private Spinner spCategory;
@@ -410,6 +417,103 @@ public class BookRepairActivity extends AppCompatActivity {
         );
     }
 
+    private String getCompressedImageBase64() throws IOException {
+
+        Bitmap bitmap;
+
+        if (cameraBitmap != null) {
+            bitmap = cameraBitmap;
+
+        } else if (imageUri != null) {
+
+            // Read a smaller version of the selected gallery image.
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+
+            try (InputStream input =
+                         getContentResolver().openInputStream(imageUri)) {
+
+                if (input == null) {
+                    throw new IOException("Cannot open selected image");
+                }
+
+                BitmapFactory.decodeStream(input, null, options);
+            }
+
+            int sampleSize = 1;
+
+            while (options.outWidth / sampleSize > 800
+                    || options.outHeight / sampleSize > 800) {
+                sampleSize *= 2;
+            }
+
+            options.inJustDecodeBounds = false;
+            options.inSampleSize = sampleSize;
+
+            try (InputStream input =
+                         getContentResolver().openInputStream(imageUri)) {
+
+                if (input == null) {
+                    throw new IOException("Cannot read selected image");
+                }
+
+                bitmap = BitmapFactory.decodeStream(input, null, options);
+            }
+
+        } else {
+            return null;
+        }
+
+        if (bitmap == null) {
+            throw new IOException("Could not decode image");
+        }
+
+        // Limit the image dimensions before compression.
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        float scale = Math.min(
+                1f,
+                Math.min(800f / width, 800f / height)
+        );
+
+        Bitmap resized = bitmap;
+
+        if (scale < 1f) {
+            resized = Bitmap.createScaledBitmap(
+                    bitmap,
+                    Math.max(1, Math.round(width * scale)),
+                    Math.max(1, Math.round(height * scale)),
+                    true
+            );
+        }
+
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+        // Reduce quality until the compressed image is at most 150 KB.
+        int quality = 75;
+
+        do {
+            output.reset();
+            resized.compress(Bitmap.CompressFormat.JPEG, quality, output);
+            quality -= 10;
+
+        } while (output.size() > 150 * 1024 && quality >= 25);
+
+        byte[] imageBytes = output.toByteArray();
+
+        if (imageBytes.length > 150 * 1024) {
+            throw new IOException(
+                    "Image is too large. Please choose another photo."
+            );
+        }
+
+        return Base64.encodeToString(
+                imageBytes,
+                Base64.NO_WRAP
+        );
+    }
+
     private void submitRepair() {
 
         String brand = editBrand.getText().toString().trim();
@@ -418,113 +522,158 @@ public class BookRepairActivity extends AppCompatActivity {
 
         String category = spCategory.getSelectedItem().toString();
         String branch = spBranch.getSelectedItem().toString();
-
         String date = txtDate.getText().toString();
 
         if (brand.isEmpty()) {
-
             editBrand.setError("Enter device brand");
             editBrand.requestFocus();
             return;
         }
 
         if (model.isEmpty()) {
-
             editModel.setError("Enter device model");
             editModel.requestFocus();
             return;
         }
 
         if (problem.isEmpty()) {
-
             editProblem.setError("Describe the problem");
             editProblem.requestFocus();
             return;
         }
 
         if (date.equals("No date selected")) {
-
             Toast.makeText(
                     this,
                     "Please select a preferred date",
                     Toast.LENGTH_SHORT
             ).show();
-
             return;
         }
 
         if (firebaseAuth.getCurrentUser() == null) {
-
             Toast.makeText(
                     this,
                     "Please login again",
                     Toast.LENGTH_SHORT
             ).show();
-
             return;
         }
 
-        String customerId =
-                firebaseAuth.getCurrentUser().getUid();
+        if (imageUri == null && cameraBitmap == null) {
+            Toast.makeText(
+                    this,
+                    "Please add a device photo",
+                    Toast.LENGTH_SHORT
+            ).show();
+            return;
+        }
 
-        Map<String, Object> repairData = new HashMap<>();
-
-        repairData.put("customerId", customerId);
-        repairData.put("deviceCategory", category);
-        repairData.put("brand", brand);
-        repairData.put("model", model);
-        repairData.put("problem", problem);
-        repairData.put("preferredDate", date);
-        repairData.put("branch", branch);
-
-        repairData.put("status", "Pending");
-        repairData.put("paymentStatus", "Unpaid");
-        repairData.put("technicianId", "");
-
-        repairData.put(
-                "createdAt",
-                System.currentTimeMillis()
-        );
-
-        // Prevent duplicate submissions while Firestore is saving.
         btnSubmitRepair.setEnabled(false);
-        btnSubmitRepair.setText("Submitting...");
+        btnSubmitRepair.setText("Preparing photo...");
 
-        firestore
-                .collection("appointments")
-                .add(repairData)
+        // Process the photo away from the main UI thread.
+        new Thread(() -> {
 
-                .addOnSuccessListener(documentReference -> {
+            String imageBase64;
 
-                    String appointmentId =
-                            documentReference.getId();
+            try {
+                imageBase64 = getCompressedImageBase64();
 
-                    documentReference.update(
-                            "appointmentId",
-                            appointmentId
-                    );
+            } catch (Exception e) {
 
-                    Toast.makeText(
-                            BookRepairActivity.this,
-                            "Repair appointment submitted successfully",
-                            Toast.LENGTH_LONG
-                    ).show();
-
-                    finish();
-                })
-
-                .addOnFailureListener(e -> {
+                runOnUiThread(() -> {
 
                     btnSubmitRepair.setEnabled(true);
-                    btnSubmitRepair.setText(
-                            "Submit Repair Request"
-                    );
+                    btnSubmitRepair.setText("Submit Repair Request");
 
                     Toast.makeText(
-                            BookRepairActivity.this,
-                            "Failed: " + e.getMessage(),
+                            this,
+                            "Photo error: " + e.getMessage(),
                             Toast.LENGTH_LONG
                     ).show();
                 });
+
+                return;
+            }
+
+            runOnUiThread(() -> {
+
+                if (firebaseAuth.getCurrentUser() == null) {
+
+                    btnSubmitRepair.setEnabled(true);
+                    btnSubmitRepair.setText("Submit Repair Request");
+
+                    Toast.makeText(
+                            this,
+                            "Please login again",
+                            Toast.LENGTH_SHORT
+                    ).show();
+
+                    return;
+                }
+
+                String customerId =
+                        firebaseAuth.getCurrentUser().getUid();
+
+                Map<String, Object> repairData = new HashMap<>();
+
+                repairData.put("customerId", customerId);
+                repairData.put("deviceCategory", category);
+                repairData.put("brand", brand);
+                repairData.put("model", model);
+                repairData.put("problem", problem);
+                repairData.put("preferredDate", date);
+                repairData.put("branch", branch);
+
+                repairData.put("status", "Pending");
+                repairData.put("paymentStatus", "Unpaid");
+                repairData.put("technicianId", "");
+
+                repairData.put(
+                        "createdAt",
+                        System.currentTimeMillis()
+                );
+
+                repairData.put(
+                        "deviceImageBase64",
+                        imageBase64
+                );
+
+                btnSubmitRepair.setText("Submitting...");
+
+                firestore.collection("appointments")
+                        .add(repairData)
+                        .addOnSuccessListener(documentReference -> {
+
+                            documentReference.update(
+                                    "appointmentId",
+                                    documentReference.getId()
+                            );
+
+                            Toast.makeText(
+                                    this,
+                                    "Repair appointment submitted successfully",
+                                    Toast.LENGTH_LONG
+                            ).show();
+
+                            finish();
+                        })
+                        .addOnFailureListener(e -> {
+
+                            btnSubmitRepair.setEnabled(true);
+                            btnSubmitRepair.setText(
+                                    "Submit Repair Request"
+                            );
+
+                            Toast.makeText(
+                                    this,
+                                    "Failed: " + e.getMessage(),
+                                    Toast.LENGTH_LONG
+                            ).show();
+                        });
+            });
+
+        }).start();
     }
 }
